@@ -482,9 +482,13 @@ local teleportCounter = 0
 local function teleportToCollectibles()
     local collectibles = game.Workspace.Collectibles:GetChildren()
     if #collectibles > 0 then
-        local randomIndex = math.random(1, #collectibles)
-        local collectible = collectibles[randomIndex]
-        print("Teleporting to collectible: " .. collectible.Name) -- Отладочная информация
+        local collectible
+        repeat
+            local randomIndex = math.random(1, #collectibles)
+            collectible = collectibles[randomIndex]
+        until collectible.Transparency == 0
+
+        print("Teleporting to collectible: " .. collectible.Name .. ", Transparency: " .. collectible.Transparency) -- Отладочная информация
         local player = game.Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -526,6 +530,32 @@ end
 
 -- Обработка нажатия кнопки Bring Items
 bringItemsButton.MouseButton1Click:Connect(toggleBringItems)
+
+-- Создаем кнопку Reconnect
+local reconnectButton = Instance.new("TextButton")
+reconnectButton.Name = "ReconnectButton"
+reconnectButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+reconnectButton.Position = UDim2.new(0.17, 0, 0.07, 0) -- Позиция ниже кнопки "Bring Stickers"
+reconnectButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+reconnectButton.BorderSizePixel = 0
+reconnectButton.Text = "Reconnect"
+reconnectButton.TextColor3 = Color3.new(1, 1, 1)
+reconnectButton.Font = Enum.Font.SourceSansBold
+reconnectButton.TextSize = 16
+reconnectButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = reconnectButton
+
+-- Функция для перезагрузки сервера
+local function reconnectToServer()
+    game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+end
+
+-- Обработка нажатия кнопки Reconnect
+reconnectButton.MouseButton1Click:Connect(reconnectToServer)
 
 
 -- Функция для анимации открытия/закрытия
