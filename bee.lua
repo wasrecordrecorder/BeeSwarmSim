@@ -1,231 +1,463 @@
--- Создаем GUI
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
+-- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ClickerGui"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
+screenGui.Name = "CustomScrollGui"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Создаем обводку
-local borderFrame = Instance.new("Frame")
-borderFrame.Size = UDim2.new(0, 304, 0, 204)
-borderFrame.Position = UDim2.new(0.5, -102, 0.5, -52)
-borderFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Черный цвет обводки
-borderFrame.BorderSizePixel = 0
-borderFrame.Visible = true -- Устанавливаем видимость в true
-borderFrame.Parent = screenGui
+-- Создаем Frame для ScrollGui
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.25, 0, -0.5, 0)
+mainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+mainFrame.BorderColor3 = Color3.new(0, 0, 0)
+mainFrame.BorderSizePixel = 3
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
 
-local borderFrameCorner = Instance.new("UICorner")
-borderFrameCorner.CornerRadius = UDim.new(0, 10)
-borderFrameCorner.Parent = borderFrame
+-- Закругляем края
+local roundedCorner = Instance.new("UICorner")
+roundedCorner.CornerRadius = UDim.new(0.05, 0)
+roundedCorner.Parent = mainFrame
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 200)
-frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true
-frame.Visible = true -- Устанавливаем видимость в true
-frame.Parent = screenGui
+-- Создаем ScrollFrame
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Name = "ScrollFrame"
+scrollFrame.Size = UDim2.new(1, 0, 0.8, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
+scrollFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 10
+scrollFrame.Parent = mainFrame
 
-local frameCorner = Instance.new("UICorner")
-frameCorner.CornerRadius = UDim.new(0, 10)
-frameCorner.Parent = frame
+local roundedCorner = Instance.new("UICorner")
+roundedCorner.CornerRadius = UDim.new(0.05, 0)
+roundedCorner.Parent = scrollFrame
 
--- Функция для синхронизации позиции borderFrame с frame
-local function syncBorderFramePosition()
-    borderFrame.Position = frame.Position - UDim2.new(0, 2, 0, 2)
-end
+-- Создаем TextLabel для текста
+local textLabel = Instance.new("TextLabel")
+textLabel.Name = "TextLabel"
+textLabel.Size = UDim2.new(1, 0, 0.1, 0)
+textLabel.Position = UDim2.new(0, 0, 0.9, 0)
+textLabel.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+textLabel.BorderSizePixel = 0
+textLabel.Text = "[Right Ctrl to open/close]"
+textLabel.TextColor3 = Color3.new(0.5, 0.5, 0.5)
+textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+textLabel.TextStrokeTransparency = 0.5
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextSize = 18
+textLabel.Parent = mainFrame
 
--- Обработчик события для перетаскивания frame
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        local connection
-        connection = game:GetService("UserInputService").InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                syncBorderFramePosition()
-            end
-        end)
-        frame.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                connection:Disconnect()
-            end
-        end)
+local roundedCorner = Instance.new("UICorner")
+roundedCorner.CornerRadius = UDim.new(0.05, 0)
+roundedCorner.Parent = textLabel
+
+-- Создаем TextLabel для текста
+local textLabel = Instance.new("TextLabel")
+textLabel.Name = "ByText"
+textLabel.Size = UDim2.new(0.9, 0, 0.05, 0)
+textLabel.Position = UDim2.new(-0.2, 0, 0.02, 0)
+textLabel.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+textLabel.BackgroundTransparency = 1 -- Полностью прозрачный фон
+textLabel.BorderSizePixel = 0
+textLabel.Text = "Created By was_record | Full Free"
+textLabel.TextColor3 = Color3.new(0.5, 0.5, 0.5)
+textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+textLabel.TextStrokeTransparency = 0.5
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextSize = 18
+textLabel.Parent = mainFrame
+
+local roundedCorner = Instance.new("UICorner")
+roundedCorner.CornerRadius = UDim.new(0.05, 0)
+roundedCorner.Parent = textLabel
+
+-- Создаем кнопку Destroy
+local destroyButton = Instance.new("TextButton")
+destroyButton.Name = "DestroyButton"
+destroyButton.Size = UDim2.new(0.1, 0, 0.06, 0)
+destroyButton.Position = UDim2.new(0.885, 0, 0.029, 0)
+destroyButton.BackgroundColor3 = Color3.new(0.8, 0, 0)
+destroyButton.BorderSizePixel = 0
+destroyButton.Text = "Destroy"
+destroyButton.TextColor3 = Color3.new(1, 1, 1)
+destroyButton.Font = Enum.Font.SourceSansBold
+destroyButton.TextSize = 18
+destroyButton.Parent = mainFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = destroyButton
+
+-- Функция для уничтожения GUI с анимацией
+destroyButton.MouseButton1Click:Connect(function()
+    mainFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true, function()
+        screenGui:Destroy()
+    end)
+end)
+
+-- Создаем кнопку для клика по объектам в папке HiddenStickers
+local clickButton = Instance.new("TextButton")
+clickButton.Name = "ClickButton"
+clickButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Уменьшенный размер
+clickButton.Position = UDim2.new(0.01, 0, 0.01, 0) -- Смещение в левый верхний угол
+clickButton.BackgroundColor3 = Color3.new(71/255, 74/255, 81/255) -- Новый цвет
+clickButton.BorderSizePixel = 0
+clickButton.Text = "Bring Stickers"
+clickButton.TextColor3 = Color3.new(1, 1, 1)
+clickButton.Font = Enum.Font.SourceSansBold
+clickButton.TextSize = 16
+clickButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = clickButton
+
+-- Анимация нажатия кнопки
+clickButton.MouseButton1Click:Connect(function()
+    clickButton.BackgroundColor3 = Color3.new(78/255, 87/255, 84/255) -- Темнее при нажатии
+    clickButton.TextSize = 14 -- Уменьшаем размер текста при нажатии
+    wait(0.1)
+    clickButton.BackgroundColor3 = Color3.new(71/255, 74/255, 81/255) -- Возвращаем исходный цвет
+    clickButton.TextSize = 16 -- Возвращаем исходный размер текста
+
+    -- Функция для клика по объектам в папке HiddenStickers
+    local hiddenStickers = game.Workspace.HiddenStickers:GetChildren()
+    for _, sticker in ipairs(hiddenStickers) do
+        if sticker:IsA("BasePart") then
+            fireclickdetector(sticker:FindFirstChildOfClass("ClickDetector"))
+        end
     end
 end)
 
-local clickButton = Instance.new("TextButton")
-clickButton.Size = UDim2.new(0, 100, 0, 50)
-clickButton.Position = UDim2.new(0, 10, 0, 15)
-clickButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-clickButton.Text = "Click Stickers"
-clickButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-clickButton.Font = Enum.Font.GothamBold
-clickButton.TextSize = 14
-clickButton.Parent = frame
+local noClipButton = Instance.new("TextButton")
+noClipButton.Name = "NoClipButton"
+noClipButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+noClipButton.Position = UDim2.new(0.17, 0, 0.01, 0) -- Позиция рядом с кнопкой "Bring Stickers"
+noClipButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+noClipButton.BorderSizePixel = 0
+noClipButton.Text = "NoClip: off"
+noClipButton.TextColor3 = Color3.new(1, 1, 1)
+noClipButton.Font = Enum.Font.SourceSansBold
+noClipButton.TextSize = 16
+noClipButton.Parent = scrollFrame
 
-local clickButtonCorner = Instance.new("UICorner")
-clickButtonCorner.CornerRadius = UDim.new(0, 10)
-clickButtonCorner.Parent = clickButton
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = noClipButton
 
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 100, 0, 50)
-closeButton.Position = UDim2.new(0, 10, 0, 75)
-closeButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-closeButton.Text = "Close"
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.Font = Enum.Font.GothamBold
-closeButton.TextSize = 14
-closeButton.Parent = frame
+-- Переменная для хранения состояния NoClip
+local noClipEnabled = false
 
-local closeButtonCorner = Instance.new("UICorner")
-closeButtonCorner.CornerRadius = UDim.new(0, 10)
-closeButtonCorner.Parent = closeButton
+local function enableNoclip()
+    steppedConnection = game:GetService("RunService").Stepped:Connect(function()
+        local character = game.Players.LocalPlayer.Character
+        if character then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end
 
--- Функция для клика по всем объектам в HiddenStickers
-local function clickStickers()
-    local hiddenStickers = game.Workspace:FindFirstChild("HiddenStickers")
-    if hiddenStickers then
-        for _, sticker in ipairs(hiddenStickers:GetChildren()) do
-            if sticker:IsA("BasePart") then
-                fireclickdetector(sticker:FindFirstChildOfClass("ClickDetector"))
+-- Функция для выключения Noclip
+local function disableNoclip()
+    if steppedConnection then
+        steppedConnection:Disconnect()
+        steppedConnection = nil
+    end
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
             end
         end
     end
 end
 
--- Обработчики событий для кнопок
-clickButton.MouseButton1Click:Connect(clickStickers)
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Анимация нажатия на кнопки
-local function buttonDown(button)
-    button.Size = button.Size - UDim2.new(0, 5, 0, 5)
-end
-
-local function buttonUp(button)
-    button.Size = button.Size + UDim2.new(0, 5, 0, 5)
-end
-
-clickButton.MouseButton1Down:Connect(function()
-    buttonDown(clickButton)
-end)
-
-clickButton.MouseButton1Up:Connect(function()
-    buttonUp(clickButton)
-end)
-
-closeButton.MouseButton1Down:Connect(function()
-    buttonDown(closeButton)
-end)
-
-closeButton.MouseButton1Up:Connect(function()
-    buttonUp(closeButton)
-end)
-
--- Кнопка для открытия/закрытия GUI
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 100, 0, 50)
-toggleButton.Position = UDim2.new(1, -110, 0.5, -25)
-toggleButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-toggleButton.Text = "Toggle GUI"
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.Font = Enum.Font.GothamBold
-toggleButton.TextSize = 14
-toggleButton.Parent = screenGui
-
-local toggleButtonCorner = Instance.new("UICorner")
-toggleButtonCorner.CornerRadius = UDim.new(0, 10)
-toggleButtonCorner.Parent = toggleButton
-
--- Функция для переключения видимости GUI
-local function toggleGui()
-    frame.Visible = not frame.Visible
-    borderFrame.Visible = frame.Visible
-end
-
--- Обработчик события для кнопки переключения
-toggleButton.MouseButton1Click:Connect(toggleGui)
-
--- Анимация нажатия на кнопку переключения
-toggleButton.MouseButton1Down:Connect(function()
-    buttonDown(toggleButton)
-end)
-
-toggleButton.MouseButton1Up:Connect(function()
-    buttonUp(toggleButton)
-end)
-
--- Анимация открытия и закрытия GUI
-local function animateGui(open)
-    if open then
-        frame:TweenSizeAndPosition(UDim2.new(0, 300, 0, 200), UDim2.new(0.5, -100, 0.5, -50), "Out", "Quad", 0.5, true)
-        borderFrame:TweenSizeAndPosition(UDim2.new(0, 304, 0, 204), UDim2.new(0.5, -102, 0.5, -52), "Out", "Quad", 0.5, true)
+-- Функция для переключения NoClip
+local function toggleNoClip()
+    noClipEnabled = not noClipEnabled
+    if noClipEnabled then
+        noClipButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        noClipButton.Text = "NoClip: on"
+        enableNoclip()
     else
-        frame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, -100, 0.5, -50), "In", "Quad", 0.5, true)
-        borderFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, -102, 0.5, -52), "In", "Quad", 0.5, true)
+        noClipButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        noClipButton.Text = "NoClip: off"
+        disableNoclip()
     end
 end
 
--- Обработчик события для кнопки переключения с анимацией
-toggleButton.MouseButton1Click:Connect(function()
-    toggleGui()
-    animateGui(frame.Visible)
-end)
+-- Обработка нажатия кнопки NoClip
+noClipButton.MouseButton1Click:Connect(toggleNoClip)
 
--- Кнопка для полета
+-- Создаем кнопку Flight
 local flightButton = Instance.new("TextButton")
-flightButton.Size = UDim2.new(0, 100, 0, 50)
-flightButton.Position = UDim2.new(0, 120, 0, 15)
-flightButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-flightButton.Text = "Flight: Off"
-flightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-flightButton.Font = Enum.Font.GothamBold
-flightButton.TextSize = 14
-flightButton.Parent = frame
+flightButton.Name = "FlightButton"
+flightButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+flightButton.Position = UDim2.new(0.33, 0, 0.01, 0) -- Позиция рядом с кнопкой "NoClip"
+flightButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+flightButton.BorderSizePixel = 0
+flightButton.Text = "Flight: off"
+flightButton.TextColor3 = Color3.new(1, 1, 1)
+flightButton.Font = Enum.Font.SourceSansBold
+flightButton.TextSize = 16
+flightButton.Parent = scrollFrame
 
-local flightButtonCorner = Instance.new("UICorner")
-flightButtonCorner.CornerRadius = UDim.new(0, 10)
-flightButtonCorner.Parent = flightButton
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = flightButton
 
--- Переменная для отслеживания состояния полета
-local isFlightOn = false
+-- Переменная для хранения состояния Flight
+local flightEnabled = false
 
--- Функция для создания твина
-local function createTween(object, properties, duration)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local tween = game:GetService("TweenService"):Create(object, tweenInfo, properties)
-    return tween
+FLYING = false
+QEfly = true
+iyflyspeed = 1
+vehicleflyspeed = 1
+
+-- Функция для запуска полета
+function sFLY(vfly)
+    repeat wait() until game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    repeat wait() until game.Players.LocalPlayer:GetMouse()
+    if flyKeyDown or flyKeyUp then flyKeyDown:Disconnect() flyKeyUp:Disconnect() end
+
+    local T = game.Players.LocalPlayer.Character.HumanoidRootPart
+    local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+    local lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+    local SPEED = 0
+
+    local function FLY()
+        FLYING = true
+        local BG = Instance.new('BodyGyro')
+        local BV = Instance.new('BodyVelocity')
+        BG.P = 9e4
+        BG.Parent = T
+        BV.Parent = T
+        BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+        BG.cframe = T.CFrame
+        BV.velocity = Vector3.new(0, 0, 0)
+        BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+        task.spawn(function()
+            repeat wait()
+                if not vfly and game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+                    game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
+                end
+                if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 or CONTROL.Q + CONTROL.E ~= 0 then
+                    SPEED = 50
+                elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 or CONTROL.Q + CONTROL.E ~= 0) and SPEED ~= 0 then
+                    SPEED = 0
+                end
+                if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 or (CONTROL.Q + CONTROL.E) ~= 0 then
+                    BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                    lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
+                elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and (CONTROL.Q + CONTROL.E) == 0 and SPEED ~= 0 then
+                    BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                else
+                    BV.velocity = Vector3.new(0, 0, 0)
+                end
+                BG.cframe = workspace.CurrentCamera.CoordinateFrame
+            until not FLYING
+            CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+            lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+            SPEED = 0
+            BG:Destroy()
+            BV:Destroy()
+            if game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+                game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
+            end
+        end)
+    end
+    flyKeyDown = game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(KEY)
+        if KEY:lower() == 'w' then
+            CONTROL.F = (vfly and vehicleflyspeed or iyflyspeed)
+        elseif KEY:lower() == 's' then
+            CONTROL.B = - (vfly and vehicleflyspeed or iyflyspeed)
+        elseif KEY:lower() == 'a' then
+            CONTROL.L = - (vfly and vehicleflyspeed or iyflyspeed)
+        elseif KEY:lower() == 'd' then
+            CONTROL.R = (vfly and vehicleflyspeed or iyflyspeed)
+        elseif QEfly and KEY:lower() == 'e' then
+            CONTROL.Q = (vfly and vehicleflyspeed or iyflyspeed)*2
+        elseif QEfly and KEY:lower() == 'q' then
+            CONTROL.E = -(vfly and vehicleflyspeed or iyflyspeed)*2
+        end
+        pcall(function() workspace.CurrentCamera.CameraType = Enum.CameraType.Track end)
+    end)
+    flyKeyUp = game.Players.LocalPlayer:GetMouse().KeyUp:Connect(function(KEY)
+        if KEY:lower() == 'w' then
+            CONTROL.F = 0
+        elseif KEY:lower() == 's' then
+            CONTROL.B = 0
+        elseif KEY:lower() == 'a' then
+            CONTROL.L = 0
+        elseif KEY:lower() == 'd' then
+            CONTROL.R = 0
+        elseif KEY:lower() == 'e' then
+            CONTROL.Q = 0
+        elseif KEY:lower() == 'q' then
+            CONTROL.E = 0
+        end
+    end)
+    FLY()
 end
 
--- Функция для переключения состояния кнопки полета
-local function toggleFlightButton()
-    isFlightOn = not isFlightOn
-    if isFlightOn then
-        local tween = createTween(flightButton, {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}, 0.5)
-        tween:Play()
-        flightButton.Text = "Flight: On"
-        sFLY(false)  -- Запуск полета
+-- Функция для остановки полета
+function NOFLY()
+    FLYING = false
+    if flyKeyDown or flyKeyUp then flyKeyDown:Disconnect() flyKeyUp:Disconnect() end
+    if game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+        game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
+    end
+    pcall(function() workspace.CurrentCamera.CameraType = Enum.CameraType.Custom end)
+end
+
+
+-- Функция для переключения Flight
+local function toggleFlight()
+    flightEnabled = not flightEnabled
+    if flightEnabled then
+        flightButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        flightButton.Text = "Flight: on"
+        sFLY()
     else
-        local tween = createTween(flightButton, {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}, 0.5)
-        tween:Play()
-        flightButton.Text = "Flight: Off"
-        NOFLY()  -- Остановка полета
+        flightButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        flightButton.Text = "Flight: off"
+        NOFLY()
     end
 end
 
--- Обработчик события для кнопки полета
-flightButton.MouseButton1Click:Connect(toggleFlightButton)
+-- Обработка нажатия кнопки Flight
+flightButton.MouseButton1Click:Connect(toggleFlight)
 
--- Анимация нажатия на кнопку полета
-flightButton.MouseButton1Down:Connect(function()
-    buttonDown(flightButton)
+-- Создаем кнопку Auto Hive
+local autoHiveButton = Instance.new("TextButton")
+autoHiveButton.Name = "AutoHiveButton"
+autoHiveButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+autoHiveButton.Position = UDim2.new(0.65, 0, 0.01, 0) -- Позиция рядом с кнопкой "Flight"
+autoHiveButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+autoHiveButton.BorderSizePixel = 0
+autoHiveButton.Text = "Auto Hive: off"
+autoHiveButton.TextColor3 = Color3.new(1, 1, 1)
+autoHiveButton.Font = Enum.Font.SourceSansBold
+autoHiveButton.TextSize = 16
+autoHiveButton.Parent = scrollFrame -- Убедитесь, что кнопка добавлена в правильный контейнер
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = autoHiveButton
+
+-- Функция для телепортации к объекту
+local function teleportToObject(object)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    humanoidRootPart.CFrame = object.CFrame
+end
+
+-- Функция для нажатия клавиши "E"
+local function pressE()
+    local virtualInputManager = game:GetService("VirtualInputManager")
+    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.1)
+    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+-- Обработчик нажатия кнопки
+autoHiveButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local hives = game.Workspace.Honeycombs:GetChildren()
+    local foundOwnObject = false
+
+    for _, hive in ipairs(hives) do
+        print("Checking Hive: " .. tostring(hive.Name))
+        local ownerValue = hive:FindFirstChild("Owner")
+        if ownerValue then
+            if ownerValue.Value == player then
+                print("Owner matches player")
+                local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
+                if patharrowBase then
+                    print("Found patharrow Base, teleporting...")
+                    teleportToObject(patharrowBase)
+                    foundOwnObject = true
+                    break
+                else
+                    print("patharrow Base not found")
+                end
+            else
+                print("Owner does not match player")
+            end
+        else
+            print("Owner not found in Hive: " .. tostring(hive.Name))
+        end
+    end
+
+    if not foundOwnObject then
+        for _, hive in ipairs(hives) do
+            local ownerValue = hive:FindFirstChild("Owner")
+            if ownerValue and ownerValue.Value == nil then
+                print("Found Hive with nil Owner, teleporting...")
+                local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
+                if patharrowBase then
+                    teleportToObject(patharrowBase)
+                    task.wait(2) -- Добавляем задержку в 2 секунды
+                    pressE()
+                    break
+                else
+                    print("patharrow Base not found")
+                end
+            end
+        end
+    end
 end)
 
-flightButton.MouseButton1Up:Connect(function()
-    buttonUp(flightButton)
+-- Функция для анимации открытия/закрытия
+local function toggleGui()
+    if mainFrame.Position.Y.Scale == -0.5 then
+        mainFrame:TweenPosition(UDim2.new(0.25, 0, 0.25, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
+    else
+        mainFrame:TweenPosition(UDim2.new(0.25, 0, -0.5, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
+    end
+end
+
+-- Обработка нажатия клавиши Right Ctrl
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        toggleGui()
+    end
+end)
+
+-- Функция для перемещения GUI
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+
+mainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end)
