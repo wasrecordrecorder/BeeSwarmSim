@@ -420,6 +420,102 @@ autoHiveButton.MouseButton1Click:Connect(function()
     end
 end)
 
+local tpSproutButton = Instance.new("TextButton")
+tpSproutButton.Name = "TpSproutButton"
+tpSproutButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+tpSproutButton.Position = UDim2.new(0.49, 0, 0.01, 0) -- Позиция рядом с кнопкой "Flight"
+tpSproutButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+tpSproutButton.BorderSizePixel = 0
+tpSproutButton.Text = "Tp-Sprout"
+tpSproutButton.TextColor3 = Color3.new(1, 1, 1)
+tpSproutButton.Font = Enum.Font.SourceSansBold
+tpSproutButton.TextSize = 16
+tpSproutButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = tpSproutButton
+
+-- Функция для телепортации к случайному объекту из Sprouts
+local function teleportToSprout()
+    local sprouts = game.Workspace.Sprouts:GetChildren()
+    if #sprouts > 0 then
+        local randomIndex = math.random(1, #sprouts)
+        local sprout = sprouts[randomIndex]
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = sprout.CFrame
+    else
+        print("No sprouts found in game.Workspace.Sprouts")
+    end
+end
+
+-- Обработка нажатия кнопки Tp-Sprout
+tpSproutButton.MouseButton1Click:Connect(teleportToSprout)
+
+-- Создаем кнопку Bring Items
+local bringItemsButton = Instance.new("TextButton")
+bringItemsButton.Name = "BringItemsButton"
+bringItemsButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+bringItemsButton.Position = UDim2.new(0.81, 0, 0.01, 0) -- Позиция рядом с кнопкой "Tp-Sprout"
+bringItemsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+bringItemsButton.BorderSizePixel = 0
+bringItemsButton.Text = "Bring Items: off"
+bringItemsButton.TextColor3 = Color3.new(1, 1, 1)
+bringItemsButton.Font = Enum.Font.SourceSansBold
+bringItemsButton.TextSize = 16
+bringItemsButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = bringItemsButton
+
+-- Переменная для хранения состояния цикла
+local bringItemsEnabled = false
+local bringItemsConnection = nil
+
+-- Функция для телепортации к объектам из Collectibles
+local function teleportToCollectibles()
+    local collectibles = game.Workspace.Collectibles:GetChildren()
+    if #collectibles > 0 then
+        local randomIndex = math.random(1, #collectibles)
+        local collectible = collectibles[randomIndex]
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = collectible.CFrame
+    else
+        print("No collectibles found in game.Workspace.Collectibles")
+    end
+end
+
+-- Функция для включения/выключения цикла телепортации
+local function toggleBringItems()
+    bringItemsEnabled = not bringItemsEnabled
+    if bringItemsEnabled then
+        bringItemsButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        bringItemsButton.Text = "Bring Items: on"
+        bringItemsConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            teleportToCollectibles()
+            wait(0.2) -- Добавляем задержку в 0.2 секунды
+        end)
+    else
+        bringItemsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        bringItemsButton.Text = "Bring Items: off"
+        if bringItemsConnection then
+            bringItemsConnection:Disconnect()
+            bringItemsConnection = nil
+        end
+    end
+end
+
+-- Обработка нажатия кнопки Bring Items
+bringItemsButton.MouseButton1Click:Connect(toggleBringItems)
+
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
