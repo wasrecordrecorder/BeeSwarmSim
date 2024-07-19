@@ -473,9 +473,10 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = bringItemsButton
 
--- Переменная для хранения состояния цикла
+-- Переменная для хранения состояния цикла и счетчика телепортаций
 local bringItemsEnabled = false
-local bringItemsConnection = nil
+local bringItemsThread = nil
+local teleportCounter = 0
 
 -- Функция для телепортации к объектам из Collectibles
 local function teleportToCollectibles()
@@ -483,6 +484,7 @@ local function teleportToCollectibles()
     if #collectibles > 0 then
         local randomIndex = math.random(1, #collectibles)
         local collectible = collectibles[randomIndex]
+        print("Teleporting to collectible: " .. collectible.Name) -- Отладочная информация
         local player = game.Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -498,16 +500,26 @@ local function toggleBringItems()
     if bringItemsEnabled then
         bringItemsButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         bringItemsButton.Text = "Bring Items: on"
-        bringItemsConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            teleportToCollectibles()
-            wait(0.8) -- Добавляем задержку в 0.2 секунды
+        teleportCounter = 0 -- Сброс счетчика телепортаций
+        bringItemsThread = coroutine.create(function()
+            while bringItemsEnabled do
+                teleportToCollectibles()
+                teleportCounter = teleportCounter + 1
+                if teleportCounter >= 50 then
+                    print("Reached 50 teleports, reloading place...")
+                    game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+                end
+                wait(0.8) -- Добавляем задержку в 0.8 секунды
+            end
         end)
+        coroutine.resume(bringItemsThread)
     else
         bringItemsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         bringItemsButton.Text = "Bring Items: off"
-        if bringItemsConnection then
-            bringItemsConnection:Disconnect()
-            bringItemsConnection = nil
+        if bringItemsThread then
+            bringItemsEnabled = false
+            coroutine.close(bringItemsThread)
+            bringItemsThread = nil
         end
     end
 end
