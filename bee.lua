@@ -500,7 +500,7 @@ local function toggleBringItems()
         bringItemsButton.Text = "Bring Items: on"
         bringItemsConnection = game:GetService("RunService").Heartbeat:Connect(function()
             teleportToCollectibles()
-            wait(0.2) -- Добавляем задержку в 0.2 секунды
+            wait(0.8) -- Добавляем задержку в 0.2 секунды
         end)
     else
         bringItemsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
