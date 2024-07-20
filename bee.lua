@@ -409,7 +409,7 @@ autoHiveButton.MouseButton1Click:Connect(function()
                 local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
                 if patharrowBase then
                     teleportToObject(patharrowBase)
-                    task.wait(2) -- Добавляем задержку в 2 секунды
+                    task.wait(0.4) -- Добавляем задержку в 2 секунды
                     pressE()
                     break
                 else
@@ -478,6 +478,7 @@ local bringItemsEnabled = false
 local bringItemsThread = nil
 local teleportCounter = 0
 local lastTeleportedCollectible = nil
+local collectedItems = {} -- Список для хранения всех собранных предметов
 
 -- Функция для телепортации к ближайшему объекту из Collectibles
 local function teleportToCollectibles()
@@ -491,9 +492,9 @@ local function teleportToCollectibles()
     local nearestDistance = math.huge
 
     for _, collectible in ipairs(collectibles) do
-        if collectible.Transparency == 0 and collectible ~= lastTeleportedCollectible then
+        if collectible.Transparency == 0 and collectible ~= lastTeleportedCollectible and not table.find(collectedItems, collectible) then
             local distance = (collectible.Position - playerPosition).Magnitude
-            if distance < nearestDistance then
+            if distance < nearestDistance and distance <= 60 then -- Добавлено условие на расстояние
                 nearestDistance = distance
                 nearestCollectible = collectible
             end
@@ -503,9 +504,10 @@ local function teleportToCollectibles()
     if nearestCollectible then
         print("Teleporting to nearest collectible: " .. nearestCollectible.Name .. ", Distance: " .. nearestDistance) -- Отладочная информация
         humanoidRootPart.CFrame = nearestCollectible.CFrame
+        table.insert(collectedItems, nearestCollectible) -- Добавление предмета в список собранных предметов
         lastTeleportedCollectible = nearestCollectible -- Обновление последнего телепортированного предмета
     else
-        print("No collectibles found in game.Workspace.Collectibles or all collectibles have been teleported to recently")
+        print("No collectibles found within 60 meters or all collectibles have been teleported to recently")
     end
 end
 
@@ -549,9 +551,9 @@ local function toggleBringItems()
                     print("Reached 50 teleports, reloading place...")
                     game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
                 end
-                wait(0.3) -- Задержка перед разморозкой
+                wait(0.05) -- Задержка перед разморозкой
                 unfreezeCharacter() -- Разморозка персонажа
-                wait(0.3) -- Задержка перед следующей заморозкой
+                wait(0.05) -- Задержка перед следующей заморозкой
             end
         end)
         coroutine.resume(bringItemsThread)
@@ -595,6 +597,7 @@ end
 
 -- Обработка нажатия кнопки Reconnect
 reconnectButton.MouseButton1Click:Connect(reconnectToServer)
+
 
 
 -- Функция для анимации открытия/закрытия
