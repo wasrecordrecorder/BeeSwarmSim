@@ -547,9 +547,9 @@ local function toggleBringItems()
                     print("Reached 50 teleports, reloading place...")
                     game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
                 end
-                wait(0.2) -- Задержка перед разморозкой
+                wait(0.1) -- Задержка перед разморозкой
                 unfreezeCharacter() -- Разморозка персонажа
-                wait(0.3) -- Задержка перед следующей заморозкой
+                wait(0.1) -- Задержка перед следующей заморозкой
             end
         end)
         coroutine.resume(bringItemsThread)
