@@ -478,24 +478,57 @@ local bringItemsEnabled = false
 local bringItemsThread = nil
 local teleportCounter = 0
 
--- Функция для телепортации к объектам из Collectibles
+-- Функция для телепортации к ближайшему объекту из Collectibles
 local function teleportToCollectibles()
-    local collectibles = game.Workspace.Collectibles:GetChildren()
-    if #collectibles > 0 then
-        local collectible
-        repeat
-            local randomIndex = math.random(1, #collectibles)
-            collectible = collectibles[randomIndex]
-        until collectible.Transparency == 0
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local playerPosition = humanoidRootPart.Position
 
-        print("Teleporting to collectible: " .. collectible.Name .. ", Transparency: " .. collectible.Transparency) -- Отладочная информация
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-        humanoidRootPart.CFrame = collectible.CFrame
+    local collectibles = game.Workspace.Collectibles:GetChildren()
+    local nearestCollectible = nil
+    local nearestDistance = math.huge
+
+    for _, collectible in ipairs(collectibles) do
+        if collectible.Transparency == 0 then
+            local distance = (collectible.Position - playerPosition).Magnitude
+            if distance < nearestDistance then
+                nearestDistance = distance
+                nearestCollectible = collectible
+            end
+        end
+    end
+
+    if nearestCollectible then
+        print("Teleporting to nearest collectible: " .. nearestCollectible.Name .. ", Distance: " .. nearestDistance) -- Отладочная информация
+        humanoidRootPart.CFrame = nearestCollectible.CFrame
     else
         print("No collectibles found in game.Workspace.Collectibles")
     end
+end
+
+-- Функция для заморозки персонажа
+local function freezeCharacter()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Отключение анимаций и физики
+    humanoid.PlatformStand = true
+    humanoidRootPart.Anchored = true
+end
+
+-- Функция для разморозки персонажа
+local function unfreezeCharacter()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Включение анимаций и физики
+    humanoid.PlatformStand = false
+    humanoidRootPart.Anchored = false
 end
 
 -- Функция для включения/выключения цикла телепортации
@@ -507,13 +540,16 @@ local function toggleBringItems()
         teleportCounter = 0 -- Сброс счетчика телепортаций
         bringItemsThread = coroutine.create(function()
             while bringItemsEnabled do
+                freezeCharacter() -- Заморозка персонажа
                 teleportToCollectibles()
                 teleportCounter = teleportCounter + 1
-                if teleportCounter >= 50 then
+                if teleportCounter >= 100 then
                     print("Reached 50 teleports, reloading place...")
                     game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
                 end
-                wait(0.8) -- Добавляем задержку в 0.8 секунды
+                wait(0.2) -- Задержка перед разморозкой
+                unfreezeCharacter() -- Разморозка персонажа
+                wait(0.3) -- Задержка перед следующей заморозкой
             end
         end)
         coroutine.resume(bringItemsThread)
@@ -525,6 +561,7 @@ local function toggleBringItems()
             coroutine.close(bringItemsThread)
             bringItemsThread = nil
         end
+        unfreezeCharacter() -- Разморозка персонажа
     end
 end
 
