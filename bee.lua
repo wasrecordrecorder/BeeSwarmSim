@@ -477,6 +477,7 @@ buttonCorner.Parent = bringItemsButton
 local bringItemsEnabled = false
 local bringItemsThread = nil
 local teleportCounter = 0
+local lastTeleportedCollectible = nil
 
 -- Функция для телепортации к ближайшему объекту из Collectibles
 local function teleportToCollectibles()
@@ -490,7 +491,7 @@ local function teleportToCollectibles()
     local nearestDistance = math.huge
 
     for _, collectible in ipairs(collectibles) do
-        if collectible.Transparency == 0 then
+        if collectible.Transparency == 0 and collectible ~= lastTeleportedCollectible then
             local distance = (collectible.Position - playerPosition).Magnitude
             if distance < nearestDistance then
                 nearestDistance = distance
@@ -502,8 +503,9 @@ local function teleportToCollectibles()
     if nearestCollectible then
         print("Teleporting to nearest collectible: " .. nearestCollectible.Name .. ", Distance: " .. nearestDistance) -- Отладочная информация
         humanoidRootPart.CFrame = nearestCollectible.CFrame
+        lastTeleportedCollectible = nearestCollectible -- Обновление последнего телепортированного предмета
     else
-        print("No collectibles found in game.Workspace.Collectibles")
+        print("No collectibles found in game.Workspace.Collectibles or all collectibles have been teleported to recently")
     end
 end
 
@@ -543,13 +545,13 @@ local function toggleBringItems()
                 freezeCharacter() -- Заморозка персонажа
                 teleportToCollectibles()
                 teleportCounter = teleportCounter + 1
-                if teleportCounter >= 100 then
+                if teleportCounter >= 200 then
                     print("Reached 50 teleports, reloading place...")
                     game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
                 end
-                wait(0.1) -- Задержка перед разморозкой
+                wait(0.3) -- Задержка перед разморозкой
                 unfreezeCharacter() -- Разморозка персонажа
-                wait(0.1) -- Задержка перед следующей заморозкой
+                wait(0.3) -- Задержка перед следующей заморозкой
             end
         end)
         coroutine.resume(bringItemsThread)
