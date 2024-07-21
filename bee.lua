@@ -576,7 +576,7 @@ bringItemsButton.MouseButton1Click:Connect(toggleBringItems)
 local reconnectButton = Instance.new("TextButton")
 reconnectButton.Name = "ReconnectButton"
 reconnectButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-reconnectButton.Position = UDim2.new(0.17, 0, 0.07, 0) -- Позиция ниже кнопки "Bring Stickers"
+reconnectButton.Position = UDim2.new(0.33, 0, 0.07, 0) -- Позиция ниже кнопки "Bring Stickers"
 reconnectButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 reconnectButton.BorderSizePixel = 0
 reconnectButton.Text = "Reconnect"
@@ -601,7 +601,7 @@ reconnectButton.MouseButton1Click:Connect(reconnectToServer)
 local speedHackButton = Instance.new("TextButton")
 speedHackButton.Name = "SpeedHackButton"
 speedHackButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-speedHackButton.Position = UDim2.new(0.33, 0, 0.07, 0) -- Позиция ниже кнопки "Reconnect"
+speedHackButton.Position = UDim2.new(0.17, 0, 0.07, 0) -- Позиция ниже кнопки "Reconnect"
 speedHackButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 speedHackButton.BorderSizePixel = 0
 speedHackButton.Text = "SpeedHack: off"
@@ -622,7 +622,7 @@ speedInput.Position = UDim2.new(0.01, 0, 0.07, 0) -- Позиция поля в�
 speedInput.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5) -- Темный фон
 speedInput.BackgroundTransparency = 0.6 -- Прозрачность
 speedInput.BorderSizePixel = 1 -- Убираем границу
-speedInput.Text = "18" -- Значение по умолчанию
+speedInput.Text = "90" -- Значение по умолчанию
 speedInput.TextColor3 = Color3.new(1, 1, 1) -- Белый текст для лучшей видимости на темном фоне
 speedInput.Font = Enum.Font.SourceSans
 speedInput.TextSize = 16
@@ -1236,7 +1236,7 @@ autoDigButton.MouseButton1Click:Connect(toggleAutoDig)
 local jumpHackButton = Instance.new("TextButton")
 jumpHackButton.Name = "JumpHackButton"
 jumpHackButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-jumpHackButton.Position = UDim2.new(0.33, 0, 0.13, 0) -- Позиция ниже кнопки "Reconnect"
+jumpHackButton.Position = UDim2.new(0.17, 0, 0.13, 0) -- Позиция ниже кнопки "Reconnect"
 jumpHackButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 jumpHackButton.BorderSizePixel = 0
 jumpHackButton.Text = "JumpHack: off"
@@ -1257,7 +1257,7 @@ jumpInput.Position = UDim2.new(0.01, 0, 0.13, 0) -- Позиция поля вв
 jumpInput.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5) -- Темный фон
 jumpInput.BackgroundTransparency = 0.6 -- Прозрачность
 jumpInput.BorderSizePixel = 1 -- Убираем границу
-jumpInput.Text = "50" -- Значение по умолчанию для силы прыжка
+jumpInput.Text = "90" -- Значение по умолчанию для силы прыжка
 jumpInput.TextColor3 = Color3.new(1, 1, 1) -- Белый текст для лучшей видимости на темном фоне
 jumpInput.Font = Enum.Font.SourceSans
 jumpInput.TextSize = 16
@@ -1318,6 +1318,183 @@ jumpInput.Changed:Connect(function(property)
     end
 end)
 
+local saveDeathButton = Instance.new("TextButton")
+saveDeathButton.Name = "SaveDeathButton"
+saveDeathButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+saveDeathButton.Position = UDim2.new(0.33, 0, 0.13, 0) -- Позиция кнопки
+saveDeathButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+saveDeathButton.BorderSizePixel = 0
+saveDeathButton.Text = "SaveDeath: off"
+saveDeathButton.TextColor3 = Color3.new(1, 1, 1)
+saveDeathButton.Font = Enum.Font.SourceSansBold
+saveDeathButton.TextSize = 16
+saveDeathButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local saveDeathButtonCorner = Instance.new("UICorner")
+saveDeathButtonCorner.CornerRadius = UDim.new(0.3, 0)
+saveDeathButtonCorner.Parent = saveDeathButton
+
+-- Переменные для хранения состояния SaveDeath и последнего местоположения
+local saveDeathEnabled = false
+local lastSavedPosition = nil
+local savingAfterTeleport = false
+
+-- Функция для сохранения текущего местоположения
+local function saveCurrentPosition()
+    local player = game.Players.LocalPlayer
+    if not player then return end
+    local character = player.Character or player.CharacterAdded:Wait()
+    if not character then return end
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end
+    lastSavedPosition = nil
+    wait(0.1)
+    lastSavedPosition = humanoidRootPart.Position
+end
+
+-- Функция для телепортации в последнее сохраненное местоположение
+local function teleportToLastPosition()
+    local player = game.Players.LocalPlayer
+    if not player then return end
+    local character = player.Character or player.CharacterAdded:Wait()
+    if not character then return end
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart or not lastSavedPosition then return end
+    humanoidRootPart.CFrame = CFrame.new(lastSavedPosition)
+    wait(0.5)
+    humanoidRootPart.CFrame = CFrame.new(lastSavedPosition)
+end
+
+-- Функция для переключения состояния SaveDeath
+local function toggleSaveDeath()
+    saveDeathEnabled = not saveDeathEnabled
+
+    if saveDeathEnabled then
+        saveDeathButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        saveDeathButton.Text = "SaveDeath: on"
+        saveCurrentPosition()
+    else
+        saveDeathButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        saveDeathButton.Text = "SaveDeath: off"
+    end
+end
+
+-- Обработка нажатия кнопки SaveDeath
+saveDeathButton.MouseButton1Click:Connect(toggleSaveDeath)
+
+-- Обработка смерти и возрождения персонажа
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    if saveDeathEnabled then
+        wait(0.5) -- Задержка в 0.5 секунды перед телепортацией
+        teleportToLastPosition()
+        savingAfterTeleport = true
+    end
+end)
+
+-- Обработка события смерти
+game.Players.LocalPlayer.Character.Humanoid.Died:Connect(function()
+    if saveDeathEnabled then
+        saveCurrentPosition()
+        print("сохранил позицию перед смертью")
+    end
+end)
+
+
+-- Создаем текстовое поле для ввода радиуса
+local radiusTextBox = Instance.new("TextBox")
+radiusTextBox.Name = "RadiusTextBox"
+radiusTextBox.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер текстового поля
+radiusTextBox.Position = UDim2.new(0.01, 0, 0.19, 0) -- Позиция текстового поля
+radiusTextBox.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5) -- Темный фон
+radiusTextBox.BackgroundTransparency = 0.6 -- Серый цвет по умолчанию
+radiusTextBox.BorderSizePixel = 0
+radiusTextBox.Text = "30" -- Значение по умолчанию
+radiusTextBox.TextColor3 = Color3.new(1, 1, 1)
+radiusTextBox.Font = Enum.Font.SourceSansBold
+radiusTextBox.TextSize = 16
+radiusTextBox.ClearTextOnFocus = false
+radiusTextBox.Parent = scrollFrame
+
+local radiusTextBoxCorner = Instance.new("UICorner")
+radiusTextBoxCorner.CornerRadius = UDim.new(0.3, 0)
+radiusTextBoxCorner.Parent = radiusTextBox
+
+-- Создаем вторую кнопку для хождения в радиусе, указанном в текстовом поле
+local randomWalkButton = Instance.new("TextButton")
+randomWalkButton.Name = "RandomWalkButton"
+randomWalkButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+randomWalkButton.Position = UDim2.new(0.17, 0, 0.19, 0) -- Позиция кнопки рядом с первой
+randomWalkButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+randomWalkButton.BorderSizePixel = 0
+randomWalkButton.Text = "Random Walk"
+randomWalkButton.TextColor3 = Color3.new(1, 1, 1)
+randomWalkButton.Font = Enum.Font.SourceSansBold
+randomWalkButton.TextSize = 16
+randomWalkButton.Parent = scrollFrame
+
+-- Закругляем края второй кнопки
+local randomWalkButtonCorner = Instance.new("UICorner")
+randomWalkButtonCorner.CornerRadius = UDim.new(0.3, 0)
+randomWalkButtonCorner.Parent = randomWalkButton
+
+-- Переменная для хранения состояния случайного хождения
+local walkingRandom = false
+
+-- Функция для случайного хождения в радиусе, указанном в текстовом поле
+local function walkRandom()
+    if walkingRandom then return end
+    walkingRandom = true
+
+    local player = game.Players.LocalPlayer
+    if not player then return end
+    local character = player.Character or player.CharacterAdded:Wait()
+    if not character then return end
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return end
+
+    local radius = tonumber(radiusTextBox.Text) or 30
+    local centerPosition = character.HumanoidRootPart.Position
+
+    local function getRandomPoint()
+        local angle = math.random() * 2 * math.pi
+        local distance = math.random() * radius
+        local x = centerPosition.X + distance * math.cos(angle)
+        local z = centerPosition.Z + distance * math.sin(angle)
+        return Vector3.new(x, centerPosition.Y, z)
+    end
+
+    while walkingRandom do
+        local targetPoint = getRandomPoint()
+        humanoid:MoveTo(targetPoint)
+        humanoid.MoveToFinished:Wait()
+    end
+
+    walkingRandom = false
+end
+
+-- Обработка изменения текста в текстовом поле
+radiusTextBox.Changed:Connect(function(property)
+    if property == "Text" then
+        local radius = tonumber(radiusTextBox.Text)
+        if not radius or radius <= 0 then
+            radiusTextBox.Text = "30" -- Возвращаем значение по умолчанию, если введено некорректное значение
+        end
+    end
+end)
+
+-- Обработка нажатия кнопки Random Walk
+randomWalkButton.MouseButton1Click:Connect(function()
+    if not walkingRandom then
+        randomWalkButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        randomWalkButton.Text = "Walking..."
+        walkRandom()
+    else
+        randomWalkButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        randomWalkButton.Text = "Random Walk"
+        walkingRandom = false
+    end
+end)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
