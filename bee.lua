@@ -615,29 +615,49 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = speedHackButton
 
+-- Переменные для хранения стандартной и повышенной скорости
+local defaultSpeed = 18 -- Стандартная скорость игрока
+local boostedSpeed = defaultSpeed * 6 -- Повышенная скорость в 3 раза
+
 -- Переменная для хранения состояния SpeedHack
 local speedHackEnabled = false
 
 -- Функция для изменения скорости игрока
-local function toggleSpeedHack()
-    speedHackEnabled = not speedHackEnabled
+local function updateSpeed()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
 
     if speedHackEnabled then
+        humanoid.WalkSpeed = boostedSpeed
+    else
+        humanoid.WalkSpeed = defaultSpeed
+    end
+end
+
+-- Функция для переключения состояния SpeedHack
+local function toggleSpeedHack()
+    speedHackEnabled = not speedHackEnabled
+    updateSpeed()
+
+    if speedHackEnabled then
         speedHackButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         speedHackButton.Text = "SpeedHack: on"
-        humanoid.WalkSpeed = humanoid.WalkSpeed * 3
     else
         speedHackButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         speedHackButton.Text = "SpeedHack: off"
-        humanoid.WalkSpeed = humanoid.WalkSpeed / 3
     end
 end
 
 -- Обработка нажатия кнопки SpeedHack
 speedHackButton.MouseButton1Click:Connect(toggleSpeedHack)
+
+-- Используем RunService.RenderStepped для постоянного обновления скорости
+game:GetService("RunService").RenderStepped:Connect(function()
+    if speedHackEnabled then
+        updateSpeed()
+    end
+end)
 
 ------------------------------------------------------
 local autoQuestButton = Instance.new("TextButton")
@@ -1100,6 +1120,87 @@ end
 autoQuestButton.MouseButton1Click:Connect(toggleAutoQuest)
 ------------------------------------------------------
 
+-- Создаем кнопку для вывода ивентов
+local eventsButton = Instance.new("TextButton")
+eventsButton.Name = "EventsButton"
+eventsButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+eventsButton.Position = UDim2.new(0.65, 0, 0.07, 0) -- Позиция рядом с кнопкой "Auto Quest"
+eventsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+eventsButton.BorderSizePixel = 0
+eventsButton.Text = "Print Events"
+eventsButton.TextColor3 = Color3.new(1, 1, 1)
+eventsButton.Font = Enum.Font.SourceSansBold
+eventsButton.TextSize = 16
+eventsButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = eventsButton
+
+-- Функция для вывода ивентов в консоль
+local function printEvents()
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local events = replicatedStorage:GetDescendants()
+    for _, event in ipairs(events) do
+        if event:IsA("RemoteEvent") then
+            local path = event.Name
+            local parent = event.Parent
+            while parent and parent ~= replicatedStorage do
+                path = parent.Name .. "/" .. path
+                parent = parent.Parent
+            end
+            print("Event found:", event.Name, "Location:", path)
+        end
+    end
+end
+
+-- Обработка нажатия кнопки
+eventsButton.MouseButton1Click:Connect(printEvents)
+
+-- Создаем кнопку для управления AutoDig
+local autoDigButton = Instance.new("TextButton")
+autoDigButton.Name = "AutoDigButton"
+autoDigButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+autoDigButton.Position = UDim2.new(0.81, 0, 0.07, 0) -- Позиция рядом с кнопкой "Print Events"
+autoDigButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+autoDigButton.BorderSizePixel = 0
+autoDigButton.Text = "AutoDig: off"
+autoDigButton.TextColor3 = Color3.new(1, 1, 1)
+autoDigButton.Font = Enum.Font.SourceSansBold
+autoDigButton.TextSize = 16
+autoDigButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = autoDigButton
+
+-- Переменная для хранения состояния AutoDig
+local autoDigEnabled = false
+local autoDigConnection = nil
+
+-- Функция для включения или выключения AutoDig
+local function toggleAutoDig()
+    autoDigEnabled = not autoDigEnabled
+    if autoDigEnabled then
+        autoDigButton.Text = "AutoDig: on"
+        autoDigButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        autoDigConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            game:GetService("ReplicatedStorage").Events.ToolCollect:FireServer()
+        end)
+    else
+        autoDigButton.Text = "AutoDig: off"
+        autoDigButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        if autoDigConnection then
+            autoDigConnection:Disconnect()
+            autoDigConnection = nil
+        end
+    end
+end
+
+-- Обработка нажатия кнопки
+autoDigButton.MouseButton1Click:Connect(toggleAutoDig)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
