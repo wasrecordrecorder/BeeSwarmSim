@@ -615,9 +615,27 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = speedHackButton
 
--- Переменные для хранения стандартной и повышенной скорости
+local speedInput = Instance.new("TextBox")
+speedInput.Name = "SpeedInput"
+speedInput.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер поля ввода
+speedInput.Position = UDim2.new(0.01, 0, 0.07, 0) -- Позиция поля ввода
+speedInput.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5) -- Темный фон
+speedInput.BackgroundTransparency = 0.6 -- Прозрачность
+speedInput.BorderSizePixel = 1 -- Убираем границу
+speedInput.Text = "18" -- Значение по умолчанию
+speedInput.TextColor3 = Color3.new(1, 1, 1) -- Белый текст для лучшей видимости на темном фоне
+speedInput.Font = Enum.Font.SourceSans
+speedInput.TextSize = 16
+speedInput.Parent = scrollFrame
+
+-- Закругляем края TextBox
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0.3, 0) -- Задаем радиус закругления
+inputCorner.Parent = speedInput
+
+-- Переменные для хранения стандартной и текущей скорости
 local defaultSpeed = 18 -- Стандартная скорость игрока
-local boostedSpeed = defaultSpeed * 6 -- Повышенная скорость в 3 раза
+local currentSpeed = defaultSpeed
 
 -- Переменная для хранения состояния SpeedHack
 local speedHackEnabled = false
@@ -629,7 +647,13 @@ local function updateSpeed()
     local humanoid = character:WaitForChild("Humanoid")
 
     if speedHackEnabled then
-        humanoid.WalkSpeed = boostedSpeed
+        local inputSpeed = tonumber(speedInput.Text)
+        if inputSpeed then
+            currentSpeed = inputSpeed
+        else
+            currentSpeed = defaultSpeed
+        end
+        humanoid.WalkSpeed = currentSpeed
     else
         humanoid.WalkSpeed = defaultSpeed
     end
@@ -651,6 +675,13 @@ end
 
 -- Обработка нажатия кнопки SpeedHack
 speedHackButton.MouseButton1Click:Connect(toggleSpeedHack)
+
+-- Обработка изменений в текстовом поле
+speedInput.Changed:Connect(function(property)
+    if property == "Text" and speedHackEnabled then
+        updateSpeed()
+    end
+end)
 
 -- Используем RunService.RenderStepped для постоянного обновления скорости
 game:GetService("RunService").RenderStepped:Connect(function()
@@ -1201,6 +1232,92 @@ end
 
 -- Обработка нажатия кнопки
 autoDigButton.MouseButton1Click:Connect(toggleAutoDig)
+
+local jumpHackButton = Instance.new("TextButton")
+jumpHackButton.Name = "JumpHackButton"
+jumpHackButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+jumpHackButton.Position = UDim2.new(0.33, 0, 0.13, 0) -- Позиция ниже кнопки "Reconnect"
+jumpHackButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+jumpHackButton.BorderSizePixel = 0
+jumpHackButton.Text = "JumpHack: off"
+jumpHackButton.TextColor3 = Color3.new(1, 1, 1)
+jumpHackButton.Font = Enum.Font.SourceSansBold
+jumpHackButton.TextSize = 16
+jumpHackButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = jumpHackButton
+
+local jumpInput = Instance.new("TextBox")
+jumpInput.Name = "JumpInput"
+jumpInput.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер поля ввода
+jumpInput.Position = UDim2.new(0.01, 0, 0.13, 0) -- Позиция поля ввода
+jumpInput.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5) -- Темный фон
+jumpInput.BackgroundTransparency = 0.6 -- Прозрачность
+jumpInput.BorderSizePixel = 1 -- Убираем границу
+jumpInput.Text = "50" -- Значение по умолчанию для силы прыжка
+jumpInput.TextColor3 = Color3.new(1, 1, 1) -- Белый текст для лучшей видимости на темном фоне
+jumpInput.Font = Enum.Font.SourceSans
+jumpInput.TextSize = 16
+jumpInput.Parent = scrollFrame
+
+-- Закругляем края TextBox
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0.3, 0) -- Задаем радиус закругления
+inputCorner.Parent = jumpInput
+
+-- Переменные для хранения стандартной и текущей силы прыжка
+local defaultJumpPower = 50 -- Стандартная сила прыжка игрока
+local currentJumpPower = defaultJumpPower
+
+-- Переменная для хранения состояния JumpHack
+local jumpHackEnabled = false
+
+-- Функция для изменения силы прыжка игрока
+local function updateJumpPower()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    if jumpHackEnabled then
+        local inputJumpPower = tonumber(jumpInput.Text)
+        if inputJumpPower then
+            currentJumpPower = inputJumpPower
+        else
+            currentJumpPower = defaultJumpPower
+        end
+        humanoid.JumpPower = currentJumpPower
+    else
+        humanoid.JumpPower = defaultJumpPower
+    end
+end
+
+-- Функция для переключения состояния JumpHack
+local function toggleJumpHack()
+    jumpHackEnabled = not jumpHackEnabled
+    updateJumpPower()
+
+    if jumpHackEnabled then
+        jumpHackButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        jumpHackButton.Text = "JumpHack: on"
+    else
+        jumpHackButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        jumpHackButton.Text = "JumpHack: off"
+    end
+end
+
+-- Обработка нажатия кнопки JumpHack
+jumpHackButton.MouseButton1Click:Connect(toggleJumpHack)
+
+-- Обработка изменения текста в поле ввода
+jumpInput.Changed:Connect(function(property)
+    if property == "Text" then
+        updateJumpPower()
+    end
+end)
+
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
