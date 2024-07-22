@@ -1448,21 +1448,14 @@ local function teleportToObjectt(object, angle)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    
-    -- Преобразование угла в радианы
     local angleRad = math.rad(angle)
-    
-    -- Получение текущей позиции объекта
     local position = object.Position
-    
-    -- Вычисление новой ориентации
     local newLookVector = Vector3.new(math.cos(angleRad), 0, math.sin(angleRad))
     
     -- Установка новой CFrame с текущей позицией и новой ориентацией
     humanoidRootPart.CFrame = CFrame.new(position, position + newLookVector)
 end
 
--- Функция для нажатия клавиши "E"
 local function pressE()
     local virtualInputManager = game:GetService("VirtualInputManager")
     virtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
@@ -1492,6 +1485,22 @@ local function unfreezeCharacter()
     -- Включение анимаций и физики
     humanoid.PlatformStand = false
     humanoidRootPart.Anchored = false
+end
+
+local function getNearbyBalloonBodies()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local nearbyBalloonBodies = {}
+
+    for _, hiveBalloonInstance in ipairs(game.Workspace.Balloons.HiveBalloons:GetChildren()) do
+        local balloonBody = hiveBalloonInstance:FindFirstChild("BalloonBody")
+        if balloonBody and (balloonBody.Position - humanoidRootPart.Position).Magnitude <= 12 then
+            table.insert(nearbyBalloonBodies, balloonBody)
+        end
+    end
+
+    return nearbyBalloonBodies
 end
 
 local function walkRandom()
@@ -1541,6 +1550,14 @@ local function walkRandom()
                             while player.CoreStats.Pollen.Value > 0 do
                                 wait(1) -- Ожидание, пока пыльца не станет 0
                             end
+
+                            -- Проверка наличия BalloonBody рядом
+                            local nearbyBalloonBodies = getNearbyBalloonBodies()
+                            while #nearbyBalloonBodies > 0 do
+                                wait(1) -- Ожидание, пока BalloonBody не исчезнет
+                                nearbyBalloonBodies = getNearbyBalloonBodies()
+                            end
+
                             wait(10)
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
@@ -1583,7 +1600,6 @@ randomWalkButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Создаем кнопку ServerHop
 local serverHopButton = Instance.new("TextButton")
 serverHopButton.Name = "ServerHopButton"
 serverHopButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
@@ -1603,78 +1619,104 @@ buttonCorner.Parent = serverHopButton
 
 -- Функция для перехода на другой сервер
 local function serverHop()
+    local teleportService = game:GetService("TeleportService")
+    local placeId = game.PlaceId -- Идентификатор текущей игры
     local player = game.Players.LocalPlayer
-    if player then
-        local teleportService = game:GetService("TeleportService")
-        local placeId = game.PlaceId
-        local jobId = game.JobId
 
-        -- Переход на случайный сервер
-        teleportService:TeleportToPlaceInstance(placeId, jobId, player)
-    end
+    -- Переход на другой сервер
+    teleportService:Teleport(placeId, player)
 end
 
--- Обработка нажатия кнопки ServerHop
 serverHopButton.MouseButton1Click:Connect(serverHop)
 
--- Создаем ScrollingFrame для выбора полей
-local fieldSelectionFrame = Instance.new("ScrollingFrame")
-fieldSelectionFrame.Name = "FieldSelectionFrame"
-fieldSelectionFrame.Size = UDim2.new(0.95, 0, 0.5, 0) -- Размер относительно основного ScrollFrame
-fieldSelectionFrame.Position = UDim2.new(0.025, 0, 0.5, 0) -- Позиция внизу основного ScrollFrame
-fieldSelectionFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-fieldSelectionFrame.BorderSizePixel = 0
-fieldSelectionFrame.ScrollBarThickness = 10
-fieldSelectionFrame.Parent = scrollFrame
+local walkItemsButton = Instance.new("TextButton")
+walkItemsButton.Name = "WalkItemsButton"
+walkItemsButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+walkItemsButton.Position = UDim2.new(0.65, 0, 0.13, 0) -- Позиция рядом с кнопкой "Tp-Sprout"
+walkItemsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+walkItemsButton.BorderSizePixel = 0
+walkItemsButton.Text = "Walk Items: off"
+walkItemsButton.TextColor3 = Color3.new(1, 1, 1)
+walkItemsButton.Font = Enum.Font.SourceSansBold
+walkItemsButton.TextSize = 16
+walkItemsButton.Parent = scrollFrame
 
-local fieldSelectionUIListLayout = Instance.new("UIListLayout")
-fieldSelectionUIListLayout.Padding = UDim.new(0, 5)
-fieldSelectionUIListLayout.Parent = fieldSelectionFrame
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = walkItemsButton
 
--- Функция для обновления размера канвы
-local function updateCanvasSize()
-    fieldSelectionFrame.CanvasSize = UDim2.new(0, 0, 0, fieldSelectionUIListLayout.AbsoluteContentSize.Y + 10)
-end
+-- Переменная для хранения состояния цикла и счетчика перемещений
+local walkItemsEnabled = false
+local walkItemsThread = nil
+local moveCounter = 0
+local lastMovedCollectible = nil
+local collectedItems = {} -- Список для хранения всех собранных предметов
 
--- Событие для обновления размера канвы при изменении содержимого
-fieldSelectionUIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
+-- Функция для перемещения к ближайшему объекту из Collectibles
+local function moveToCollectibles()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local playerPosition = character.HumanoidRootPart.Position
 
--- Функция для создания кнопок выбора полей
-local function createFieldButtons()
-    if not game.Workspace:FindFirstChild("FlowerZones") then
-        warn("FlowerZones not found in Workspace")
-        return
-    end
+    local collectibles = game.Workspace.Collectibles:GetChildren()
+    local nearestCollectible = nil
+    local nearestDistance = math.huge
 
-    local flowerZones = game.Workspace.FlowerZones:GetChildren()
-    for _, zone in ipairs(flowerZones) do
-        local button = Instance.new("TextButton")
-        button.Name = zone.Name
-        button.Size = UDim2.new(0.95, 0, 0.1, 0) -- Уменьшенный размер кнопки
-        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-        button.BorderSizePixel = 0
-        button.Text = zone.Name
-        button.TextColor3 = Color3.new(1, 1, 1)
-        button.Font = Enum.Font.SourceSansBold
-        button.TextSize = 14 -- Уменьшенный размер текста
-        button.Parent = fieldSelectionFrame
-
-        button.MouseButton1Click:Connect(function()
-            local player = game.Players.LocalPlayer
-            if not player or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
-                warn("Player or HumanoidRootPart not found")
-                return
+    for _, collectible in ipairs(collectibles) do
+        if collectible.Transparency == 0 and collectible ~= lastMovedCollectible and not table.find(collectedItems, collectible) then
+            local distance = (collectible.Position - playerPosition).Magnitude
+            if distance < nearestDistance and distance <= 60 then -- Добавлено условие на расстояние
+                nearestDistance = distance
+                nearestCollectible = collectible
             end
-            local humanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
-            humanoidRootPart.CFrame = CFrame.new(zone.Position)
-        end)
+        end
     end
-    updateCanvasSize() -- Обновляем размер канвы после создания кнопок
+
+    if nearestCollectible then
+        print("Moving to nearest collectible: " .. nearestCollectible.Name .. ", Distance: " .. nearestDistance) -- Отладочная информация
+        humanoid:MoveTo(nearestCollectible.Position)
+        humanoid.MoveToFinished:Wait() -- Ожидание завершения перемещения
+        table.insert(collectedItems, nearestCollectible) -- Добавление предмета в список собранных предметов
+        lastMovedCollectible = nearestCollectible -- Обновление последнего перемещенного предмета
+    else
+        print("No collectibles found within 60 meters or all collectibles have been moved to recently")
+    end
 end
 
--- Создаем кнопки выбора полей
-createFieldButtons()
+-- Функция для включения/выключения цикла перемещения
+local function toggleWalkItems()
+    walkItemsEnabled = not walkItemsEnabled
+    if walkItemsEnabled then
+        walkItemsButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        walkItemsButton.Text = "Walk Items: on"
+        moveCounter = 0 -- Сброс счетчика перемещений
+        walkItemsThread = coroutine.create(function()
+            while walkItemsEnabled do
+                moveToCollectibles()
+                moveCounter = moveCounter + 1
+                if moveCounter >= 3000 then
+                    print("Reached 50 moves, reloading place...")
+                    game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+                end
+                wait(0.05) -- Задержка перед следующим перемещением
+            end
+        end)
+        coroutine.resume(walkItemsThread)
+    else
+        walkItemsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        walkItemsButton.Text = "Walk Items: off"
+        if walkItemsThread then
+            walkItemsEnabled = false
+            coroutine.close(walkItemsThread)
+            walkItemsThread = nil
+        end
+    end
+end
 
+-- Обработка нажатия кнопки Walk Items
+walkItemsButton.MouseButton1Click:Connect(toggleWalkItems)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
