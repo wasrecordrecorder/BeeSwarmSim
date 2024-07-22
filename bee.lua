@@ -1440,8 +1440,60 @@ randomWalkButtonCorner.Parent = randomWalkButton
 
 -- Переменная для хранения состояния случайного хождения
 local walkingRandom = false
+local initialPosition = nil
+local hives = game.Workspace.Honeycombs:GetChildren()
 
--- Функция для случайного хождения в радиусе, указанном в текстовом поле
+-- Функция для телепортации к объекту
+local function teleportToObjectt(object, angle)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
+    -- Преобразование угла в радианы
+    local angleRad = math.rad(angle)
+    
+    -- Получение текущей позиции объекта
+    local position = object.Position
+    
+    -- Вычисление новой ориентации
+    local newLookVector = Vector3.new(math.cos(angleRad), 0, math.sin(angleRad))
+    
+    -- Установка новой CFrame с текущей позицией и новой ориентацией
+    humanoidRootPart.CFrame = CFrame.new(position, position + newLookVector)
+end
+
+-- Функция для нажатия клавиши "E"
+local function pressE()
+    local virtualInputManager = game:GetService("VirtualInputManager")
+    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.1)
+    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+-- Функция для заморозки персонажа
+local function freezeCharacter()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Отключение анимаций и физики
+    humanoid.PlatformStand = true
+    humanoidRootPart.Anchored = true
+end
+
+-- Функция для разморозки персонажа
+local function unfreezeCharacter()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Включение анимаций и физики
+    humanoid.PlatformStand = false
+    humanoidRootPart.Anchored = false
+end
+
 local function walkRandom()
     if walkingRandom then return end
     walkingRandom = true
@@ -1454,17 +1506,50 @@ local function walkRandom()
     if not humanoid then return end
 
     local radius = tonumber(radiusTextBox.Text) or 30
-    local centerPosition = character.HumanoidRootPart.Position
+    initialPosition = character.HumanoidRootPart.Position
 
     local function getRandomPoint()
         local angle = math.random() * 2 * math.pi
         local distance = math.random() * radius
-        local x = centerPosition.X + distance * math.cos(angle)
-        local z = centerPosition.Z + distance * math.sin(angle)
-        return Vector3.new(x, centerPosition.Y, z)
+        local x = initialPosition.X + distance * math.cos(angle)
+        local z = initialPosition.Z + distance * math.sin(angle)
+        return Vector3.new(x, initialPosition.Y, z)
     end
 
     while walkingRandom do
+        local pollen = player.CoreStats.Pollen.Value
+        local capacity = player.CoreStats.Capacity.Value
+        if pollen >= capacity then
+            walkingRandom = false
+            print("твоя пыльца фулл") 
+            wait(2)
+            for _, hive in ipairs(hives) do
+                print("Checking Hive: " .. tostring(hive.Name))
+                local ownerValue = hive:FindFirstChild("Owner")
+                if ownerValue then
+                    if ownerValue.Value == player then
+                        print("Owner matches player")
+                        local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
+                        if patharrowBase then
+                            print("Found patharrow Base, teleporting...")
+                            freezeCharacter()
+                            teleportToObjectt(patharrowBase, 90)
+                            wait(0.5)
+                            unfreezeCharacter()
+                            pressE()
+                            while player.CoreStats.Pollen.Value > 0 do
+                                wait(1) -- Ожидание, пока пыльца не станет 0
+                            end
+                            wait(10)
+                            character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+                            walkingRandom = true
+                            break
+                        end
+                    end
+                end
+            end
+        end
+
         local targetPoint = getRandomPoint()
         humanoid:MoveTo(targetPoint)
         humanoid.MoveToFinished:Wait()
@@ -1495,6 +1580,40 @@ randomWalkButton.MouseButton1Click:Connect(function()
         walkingRandom = false
     end
 end)
+
+-- Создаем кнопку ServerHop
+local serverHopButton = Instance.new("TextButton")
+serverHopButton.Name = "ServerHopButton"
+serverHopButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+serverHopButton.Position = UDim2.new(0.49, 0, 0.13, 0) -- Позиция кнопки
+serverHopButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+serverHopButton.BorderSizePixel = 0
+serverHopButton.Text = "ServerHop"
+serverHopButton.TextColor3 = Color3.new(1, 1, 1)
+serverHopButton.Font = Enum.Font.SourceSansBold
+serverHopButton.TextSize = 16
+serverHopButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = serverHopButton
+
+-- Функция для перехода на другой сервер
+local function serverHop()
+    local player = game.Players.LocalPlayer
+    if player then
+        local teleportService = game:GetService("TeleportService")
+        local placeId = game.PlaceId
+        local jobId = game.JobId
+
+        -- Переход на случайный сервер
+        teleportService:TeleportToPlaceInstance(placeId, jobId, player)
+    end
+end
+
+-- Обработка нажатия кнопки ServerHop
+serverHopButton.MouseButton1Click:Connect(serverHop)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
