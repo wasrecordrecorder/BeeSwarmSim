@@ -1427,7 +1427,7 @@ randomWalkButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
 randomWalkButton.Position = UDim2.new(0.17, 0, 0.19, 0) -- Позиция кнопки рядом с первой
 randomWalkButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 randomWalkButton.BorderSizePixel = 0
-randomWalkButton.Text = "Random Walk"
+randomWalkButton.Text = "AutoFarm"
 randomWalkButton.TextColor3 = Color3.new(1, 1, 1)
 randomWalkButton.Font = Enum.Font.SourceSansBold
 randomWalkButton.TextSize = 16
@@ -1536,12 +1536,14 @@ local function walkRandom()
                             teleportToObjectt(patharrowBase, 90)
                             wait(0.5)
                             unfreezeCharacter()
+                            wait(0.4)
                             pressE()
                             while player.CoreStats.Pollen.Value > 0 do
                                 wait(1) -- Ожидание, пока пыльца не станет 0
                             end
                             wait(10)
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+                            wait(0.1)
                             walkingRandom = true
                             break
                         end
@@ -1572,11 +1574,11 @@ end)
 randomWalkButton.MouseButton1Click:Connect(function()
     if not walkingRandom then
         randomWalkButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
-        randomWalkButton.Text = "Walking..."
+        randomWalkButton.Text = "Farming..."
         walkRandom()
     else
         randomWalkButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
-        randomWalkButton.Text = "Random Walk"
+        randomWalkButton.Text = "AutoFarm"
         walkingRandom = false
     end
 end)
@@ -1614,6 +1616,65 @@ end
 
 -- Обработка нажатия кнопки ServerHop
 serverHopButton.MouseButton1Click:Connect(serverHop)
+
+-- Создаем ScrollingFrame для выбора полей
+local fieldSelectionFrame = Instance.new("ScrollingFrame")
+fieldSelectionFrame.Name = "FieldSelectionFrame"
+fieldSelectionFrame.Size = UDim2.new(0.95, 0, 0.5, 0) -- Размер относительно основного ScrollFrame
+fieldSelectionFrame.Position = UDim2.new(0.025, 0, 0.5, 0) -- Позиция внизу основного ScrollFrame
+fieldSelectionFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+fieldSelectionFrame.BorderSizePixel = 0
+fieldSelectionFrame.ScrollBarThickness = 10
+fieldSelectionFrame.Parent = scrollFrame
+
+local fieldSelectionUIListLayout = Instance.new("UIListLayout")
+fieldSelectionUIListLayout.Padding = UDim.new(0, 5)
+fieldSelectionUIListLayout.Parent = fieldSelectionFrame
+
+-- Функция для обновления размера канвы
+local function updateCanvasSize()
+    fieldSelectionFrame.CanvasSize = UDim2.new(0, 0, 0, fieldSelectionUIListLayout.AbsoluteContentSize.Y + 10)
+end
+
+-- Событие для обновления размера канвы при изменении содержимого
+fieldSelectionUIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
+
+-- Функция для создания кнопок выбора полей
+local function createFieldButtons()
+    if not game.Workspace:FindFirstChild("FlowerZones") then
+        warn("FlowerZones not found in Workspace")
+        return
+    end
+
+    local flowerZones = game.Workspace.FlowerZones:GetChildren()
+    for _, zone in ipairs(flowerZones) do
+        local button = Instance.new("TextButton")
+        button.Name = zone.Name
+        button.Size = UDim2.new(0.95, 0, 0.1, 0) -- Уменьшенный размер кнопки
+        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+        button.BorderSizePixel = 0
+        button.Text = zone.Name
+        button.TextColor3 = Color3.new(1, 1, 1)
+        button.Font = Enum.Font.SourceSansBold
+        button.TextSize = 14 -- Уменьшенный размер текста
+        button.Parent = fieldSelectionFrame
+
+        button.MouseButton1Click:Connect(function()
+            local player = game.Players.LocalPlayer
+            if not player or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+                warn("Player or HumanoidRootPart not found")
+                return
+            end
+            local humanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
+            humanoidRootPart.CFrame = CFrame.new(zone.Position)
+        end)
+    end
+    updateCanvasSize() -- Обновляем размер канвы после создания кнопок
+end
+
+-- Создаем кнопки выбора полей
+createFieldButtons()
+
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
