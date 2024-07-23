@@ -1,3 +1,11 @@
+if game.Workspace:FindFirstChild("Gates") then
+    -- Удаляем объект Gates
+    game.Workspace.Gates:Destroy()
+    print("Объект Gates успешно удален из Workspace.")
+else
+    print("Объект Gates не найден в Workspace.")
+end
+
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "CustomScrollGui"
@@ -1749,6 +1757,78 @@ game.Players.PlayerAdded:Connect(function(player)
         local humanoid = character:WaitForChild("Humanoid")
         humanoid.Died:Connect(onPlayerDied)
     end)
+end)
+
+-- Создаем кнопку для переключения уведомлений
+local notificationsButton = Instance.new("TextButton")
+notificationsButton.Name = "NotificationsButton"
+notificationsButton.Size = UDim2.new(0.15, 0, 0.05, 0)
+notificationsButton.Position = UDim2.new(0.81, 0, 0.13, 0) -- Позиция кнопки
+notificationsButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет, так как уведомления изначально включены
+notificationsButton.BorderSizePixel = 0
+notificationsButton.Text = "Notifications: on"
+notificationsButton.TextColor3 = Color3.new(1, 1, 1)
+notificationsButton.Font = Enum.Font.SourceSansBold
+notificationsButton.TextSize = 16
+notificationsButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = notificationsButton
+
+-- Переменная для хранения состояния уведомлений
+local notificationsEnabled = true -- Устанавливаем в true, чтобы уведомления были включены изначально
+
+-- Переменная для отслеживания позиции последнего уведомления
+local lastNotificationPosition = UDim2.new(0.35, 0, 0.9, 0)
+
+-- Функция для создания уведомления
+local function createNotification(message)
+    local notification = Instance.new("TextLabel")
+    notification.Name = "Notification"
+    notification.Size = UDim2.new(0.3, 0, 0.05, 0)
+    notification.Position = lastNotificationPosition
+    notification.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    notification.BorderSizePixel = 0
+    notification.Text = message
+    notification.TextColor3 = Color3.new(1, 1, 1)
+    notification.Font = Enum.Font.SourceSansBold
+    notification.TextSize = 16
+    notification.Parent = screenGui
+
+    -- Анимация появления
+    notification:TweenPosition(UDim2.new(lastNotificationPosition.X.Scale, lastNotificationPosition.X.Offset, lastNotificationPosition.Y.Scale - 0.05, lastNotificationPosition.Y.Offset), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
+    wait(2) -- Отображение уведомления в течение 2 секунд
+    -- Анимация исчезновения
+    notification:TweenPosition(lastNotificationPosition, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true, function()
+        notification:Destroy()
+    end)
+
+    -- Обновляем позицию для следующего уведомления
+    lastNotificationPosition = UDim2.new(lastNotificationPosition.X.Scale, lastNotificationPosition.X.Offset, lastNotificationPosition.Y.Scale - 0.05, lastNotificationPosition.Y.Offset)
+end
+
+-- Функция для переключения уведомлений
+local function toggleNotifications()
+    notificationsEnabled = not notificationsEnabled
+    notificationsButton.Text = "Notifications: " .. (notificationsEnabled and "on" or "off")
+    notificationsButton.BackgroundColor3 = notificationsEnabled and Color3.new(0, 1, 0) or Color3.new(0.5, 0.5, 0.5)
+end
+
+notificationsButton.MouseButton1Click:Connect(toggleNotifications)
+
+-- Обработчики событий для Sprouts и NPCBees
+game.Workspace.Sprouts.ChildAdded:Connect(function(child)
+    if notificationsEnabled then
+        createNotification("На этом сервере заспавнился росток!")
+    end
+end)
+
+game.Workspace.NPCBees.ChildAdded:Connect(function(child)
+    if notificationsEnabled then
+        createNotification("На сервере появился: " .. child.Name)
+    end
 end)
 
 local serverHopButton = Instance.new("TextButton")
