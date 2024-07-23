@@ -1404,12 +1404,12 @@ end)
 -- Создаем текстовое поле для ввода радиуса
 local radiusTextBox = Instance.new("TextBox")
 radiusTextBox.Name = "RadiusTextBox"
-radiusTextBox.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер текстового поля
-radiusTextBox.Position = UDim2.new(0.01, 0, 0.19, 0) -- Позиция текстового поля
-radiusTextBox.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5) -- Темный фон
-radiusTextBox.BackgroundTransparency = 0.6 -- Серый цвет по умолчанию
+radiusTextBox.Size = UDim2.new(0.15, 0, 0.05, 0)
+radiusTextBox.Position = UDim2.new(0.01, 0, 0.19, 0) 
+radiusTextBox.BackgroundColor3 = Color3.new(0.4, 0.5, 0.5)
+radiusTextBox.BackgroundTransparency = 0.6
 radiusTextBox.BorderSizePixel = 0
-radiusTextBox.Text = "30" -- Значение по умолчанию
+radiusTextBox.Text = "40" 
 radiusTextBox.TextColor3 = Color3.new(1, 1, 1)
 radiusTextBox.Font = Enum.Font.SourceSansBold
 radiusTextBox.TextSize = 16
@@ -1442,6 +1442,7 @@ randomWalkButtonCorner.Parent = randomWalkButton
 local walkingRandom = false
 local initialPosition = nil
 local hives = game.Workspace.Honeycombs:GetChildren()
+local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
 
 -- Функция для телепортации к объекту
 local function teleportToObjectt(object, angle)
@@ -1503,6 +1504,97 @@ local function getNearbyBalloonBodies()
     return nearbyBalloonBodies
 end
 
+local function getNearbyMonsters()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local nearbyMonsters = {}
+
+    for _, monster in ipairs(game.Workspace.Monsters:GetChildren()) do
+        if monster:FindFirstChild("Target") and monster.Target.Value == player then
+            table.insert(nearbyMonsters, monster)
+        end
+    end
+
+    return nearbyMonsters
+end
+
+local function getNearbyCollectibles()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local nearbyCollectibles = {}
+
+    for _, collectible in ipairs(game.Workspace.Collectibles:GetChildren()) do
+        if (collectible.Position - humanoidRootPart.Position).Magnitude <= 30 then
+            table.insert(nearbyCollectibles, collectible)
+        end
+    end
+
+    return nearbyCollectibles
+end
+
+local function isPathClear(startPoint, endPoint, monsters)
+    local direction = (endPoint - startPoint).Unit
+    local distance = (endPoint - startPoint).Magnitude
+    local step = 2 -- Шаг проверки
+
+    for i = 0, distance, step do
+        local checkPoint = startPoint + direction * i
+        for _, monster in ipairs(monsters) do
+            if (monster.Position - checkPoint).Magnitude < 10 then
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
+local function getRandomPoint(initialPosition, radius, nearbyMonsters)
+    local bestPoint = nil
+    local bestDistance = 0
+
+    for i = 1, 20 do -- Увеличено количество попыток найти лучшую точку
+        local angle = math.random() * 2 * math.pi
+        local distance = math.random() * radius
+        local x = initialPosition.X + distance * math.cos(angle)
+        local z = initialPosition.Z + distance * math.sin(angle)
+        local point = Vector3.new(x, initialPosition.Y, z)
+
+        local minDistance = math.huge
+        for _, monster in ipairs(nearbyMonsters) do
+            local dist = (monster.Position - point).Magnitude
+            if dist < minDistance then
+                minDistance = dist
+            end
+        end
+
+        if minDistance > bestDistance then
+            bestDistance = minDistance
+            bestPoint = point
+        end
+    end
+
+    return bestPoint
+end
+
+local function checkHealthAndTeleport()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    if humanoid.Health < humanoid.MaxHealth * 0.5 then
+        walkingRandom = false
+        character.HumanoidRootPart.CFrame = safeCFrame
+        while humanoid.Health < humanoid.MaxHealth do
+            wait(1)
+        end
+        character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+        walkingRandom = true
+    end
+end
+
 local function walkRandom()
     if walkingRandom then return end
     walkingRandom = true
@@ -1517,15 +1609,9 @@ local function walkRandom()
     local radius = tonumber(radiusTextBox.Text) or 30
     initialPosition = character.HumanoidRootPart.Position
 
-    local function getRandomPoint()
-        local angle = math.random() * 2 * math.pi
-        local distance = math.random() * radius
-        local x = initialPosition.X + distance * math.cos(angle)
-        local z = initialPosition.Z + distance * math.sin(angle)
-        return Vector3.new(x, initialPosition.Y, z)
-    end
-
     while walkingRandom do
+        checkHealthAndTeleport()
+
         local pollen = player.CoreStats.Pollen.Value
         local capacity = player.CoreStats.Capacity.Value
         if pollen >= capacity then
@@ -1566,9 +1652,33 @@ local function walkRandom()
             end
         end
 
-        local targetPoint = getRandomPoint()
-        humanoid:MoveTo(targetPoint)
-        humanoid.MoveToFinished:Wait()
+        local nearbyMonsters = getNearbyMonsters()
+        local nearbyCollectibles = getNearbyCollectibles()
+
+        if #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
+            local closestCollectible = nearbyCollectibles[1]
+            local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
+
+            for _, collectible in ipairs(nearbyCollectibles) do
+                local distance = (collectible.Position - initialPosition).Magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestCollectible = collectible
+                end
+            end
+
+            humanoid:MoveTo(closestCollectible.Position)
+            humanoid.MoveToFinished:Wait()
+        else
+            local targetPoint = getRandomPoint(initialPosition, radius, nearbyMonsters)
+
+            if targetPoint and isPathClear(initialPosition, targetPoint, nearbyMonsters) then
+                humanoid:MoveTo(targetPoint)
+                humanoid.MoveToFinished:Wait()
+            else
+                print("Не удалось найти безопасную точку")
+            end
+        end
     end
 
     walkingRandom = false
@@ -1597,14 +1707,6 @@ randomWalkButton.MouseButton1Click:Connect(function()
     end
 end)
 
-local function readFarm()
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    wait(3)
-    character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
-    wait(5)
-    character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
-end
-
 -- Функция для обработки смерти игрока
 local function onPlayerDied()
     local player = game.Players.LocalPlayer
@@ -1612,17 +1714,31 @@ local function onPlayerDied()
     local humanoid = character:WaitForChild("Humanoid")
 
     humanoid.Died:Connect(function()
-        walkingRandom = false
-        player.CharacterAdded:Wait() -- Ожидание возрождения
-        wait(5) -- Ожидание 5 секунд после возрождения
-        readFarm()
-        wait(3)
-        walkRandom() 
+        if walkingRandom then
+            walkingRandom = false
+            player.CharacterAdded:Wait() -- Wait for respawn
+            wait(5) -- Wait 5 seconds after respawn
+            local newCharacter = player.Character
+            local humanoidRootPart = newCharacter:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                humanoidRootPart.CFrame = CFrame.new(initialPosition)
+            end
+            wait(5)
+            if humanoidRootPart then
+                humanoidRootPart.CFrame = CFrame.new(initialPosition)
+            end
+            wait(3)
+            walkRandom()
+        end
     end)
 end
 
--- Запуск функции обработки смерти игрока
-onPlayerDied()
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.Died:Connect(onPlayerDied)
+    end)
+end)
 
 local serverHopButton = Instance.new("TextButton")
 serverHopButton.Name = "ServerHopButton"
