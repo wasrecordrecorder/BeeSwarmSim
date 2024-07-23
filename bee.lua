@@ -1656,19 +1656,30 @@ local function walkRandom()
         local nearbyCollectibles = getNearbyCollectibles()
 
         if #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
-            local closestCollectible = nearbyCollectibles[1]
-            local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
+            if math.random() < 0.5 then
+                local closestCollectible = nearbyCollectibles[1]
+                local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
 
-            for _, collectible in ipairs(nearbyCollectibles) do
-                local distance = (collectible.Position - initialPosition).Magnitude
-                if distance < closestDistance then
-                    closestDistance = distance
-                    closestCollectible = collectible
+                for _, collectible in ipairs(nearbyCollectibles) do
+                    local distance = (collectible.Position - initialPosition).Magnitude
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closestCollectible = collectible
+                    end
+                end
+
+                humanoid:MoveTo(closestCollectible.Position)
+                humanoid.MoveToFinished:Wait()
+            else
+                local targetPoint = getRandomPoint(initialPosition, radius, nearbyMonsters)
+
+                if targetPoint and isPathClear(initialPosition, targetPoint, nearbyMonsters) then
+                    humanoid:MoveTo(targetPoint)
+                    humanoid.MoveToFinished:Wait()
+                else
+                    print("Не удалось найти безопасную точку")
                 end
             end
-
-            humanoid:MoveTo(closestCollectible.Position)
-            humanoid.MoveToFinished:Wait()
         else
             local targetPoint = getRandomPoint(initialPosition, radius, nearbyMonsters)
 
