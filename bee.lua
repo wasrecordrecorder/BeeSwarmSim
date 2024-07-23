@@ -1495,7 +1495,7 @@ local function getNearbyBalloonBodies()
 
     for _, hiveBalloonInstance in ipairs(game.Workspace.Balloons.HiveBalloons:GetChildren()) do
         local balloonBody = hiveBalloonInstance:FindFirstChild("BalloonBody")
-        if balloonBody and (balloonBody.Position - humanoidRootPart.Position).Magnitude <= 12 then
+        if balloonBody and (balloonBody.Position - humanoidRootPart.Position).Magnitude <= 20 then
             table.insert(nearbyBalloonBodies, balloonBody)
         end
     end
@@ -1548,16 +1548,13 @@ local function walkRandom()
                             wait(0.4)
                             pressE()
                             while player.CoreStats.Pollen.Value > 0 do
-                                wait(1) -- Ожидание, пока пыльца не станет 0
+                                wait(1) 
                             end
-
-                            -- Проверка наличия BalloonBody рядом
                             local nearbyBalloonBodies = getNearbyBalloonBodies()
                             while #nearbyBalloonBodies > 0 do
                                 wait(1) -- Ожидание, пока BalloonBody не исчезнет
                                 nearbyBalloonBodies = getNearbyBalloonBodies()
                             end
-
                             wait(10)
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
@@ -1599,6 +1596,33 @@ randomWalkButton.MouseButton1Click:Connect(function()
         walkingRandom = false
     end
 end)
+
+local function readFarm()
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    wait(3)
+    character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+    wait(5)
+    character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+end
+
+-- Функция для обработки смерти игрока
+local function onPlayerDied()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    humanoid.Died:Connect(function()
+        walkingRandom = false
+        player.CharacterAdded:Wait() -- Ожидание возрождения
+        wait(5) -- Ожидание 5 секунд после возрождения
+        readFarm()
+        wait(3)
+        walkRandom() 
+    end)
+end
+
+-- Запуск функции обработки смерти игрока
+onPlayerDied()
 
 local serverHopButton = Instance.new("TextButton")
 serverHopButton.Name = "ServerHopButton"
@@ -1695,11 +1719,6 @@ local function toggleWalkItems()
         walkItemsThread = coroutine.create(function()
             while walkItemsEnabled do
                 moveToCollectibles()
-                moveCounter = moveCounter + 1
-                if moveCounter >= 3000 then
-                    print("Reached 50 moves, reloading place...")
-                    game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-                end
                 wait(0.05) -- Задержка перед следующим перемещением
             end
         end)
