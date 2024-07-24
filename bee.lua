@@ -6,6 +6,11 @@ else
     print("Объект Gates не найден в Workspace.")
 end
 
+repeat wait() until game:IsLoaded()
+    game:GetService("Players").LocalPlayer.Idled:connect(function()
+    game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+end)
+
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "CustomScrollGui"
@@ -1646,9 +1651,9 @@ local function walkRandom()
                             teleportToObjectt(patharrowBase, 90)
                             wait(0.1)
                             unfreezeCharacter()
-                            wait(0.01)
+                            wait(0.1)
 							teleportBeesToPlayer()
-							wait(0.01)
+							wait(0.2)
                             game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
                             while player.CoreStats.Pollen.Value > 0 do
                                 wait(0.5) 
@@ -1662,7 +1667,7 @@ local function walkRandom()
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
                             walkingRandom = true
-							wait(0.05)
+							wait(0.2)
 							teleportBeesToPlayer()
                             break
                         end
