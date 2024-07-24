@@ -1446,13 +1446,23 @@ local randomWalkButtonCorner = Instance.new("UICorner")
 randomWalkButtonCorner.CornerRadius = UDim.new(0.3, 0)
 randomWalkButtonCorner.Parent = randomWalkButton
 
--- Переменная для хранения состояния случайного хождения
 local walkingRandom = false
 local initialPosition = nil
 local hives = game.Workspace.Honeycombs:GetChildren()
 local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
 
--- Функция для телепортации к объекту
+local player = game.Players.LocalPlayer
+
+local function teleportBeesToPlayer()
+
+    local playerPosition = player.Character.HumanoidRootPart.Position
+    for _, bee in pairs(game.Workspace.Bees:GetChildren()) do
+        if bee:IsA("BasePart") then
+            bee.Position = playerPosition
+        end
+    end
+end
+
 local function teleportToObjectt(object, angle)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
@@ -1478,8 +1488,6 @@ local function freezeCharacter()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    -- Отключение анимаций и физики
     humanoid.PlatformStand = true
     humanoidRootPart.Anchored = true
 end
@@ -1599,6 +1607,8 @@ local function checkHealthAndTeleport()
             wait(1)
         end
         character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+		wait(0.1)
+		teleportBeesToPlayer()
         walkingRandom = true
     end
 end
@@ -1624,35 +1634,36 @@ local function walkRandom()
         local capacity = player.CoreStats.Capacity.Value
         if pollen >= capacity then
             walkingRandom = false
-            print("твоя пыльца фулл") 
-            wait(2)
+            wait(0.5)
             for _, hive in ipairs(hives) do
-                print("Checking Hive: " .. tostring(hive.Name))
                 local ownerValue = hive:FindFirstChild("Owner")
                 if ownerValue then
                     if ownerValue.Value == player then
-                        print("Owner matches player")
                         local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
                         if patharrowBase then
                             print("Found patharrow Base, teleporting...")
                             freezeCharacter()
                             teleportToObjectt(patharrowBase, 90)
-                            wait(0.5)
+                            wait(0.1)
                             unfreezeCharacter()
-                            wait(0.4)
-                            pressE()
+                            wait(0.01)
+							teleportBeesToPlayer()
+							wait(0.01)
+                            game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
                             while player.CoreStats.Pollen.Value > 0 do
-                                wait(1) 
+                                wait(0.5) 
                             end
                             local nearbyBalloonBodies = getNearbyBalloonBodies()
                             while #nearbyBalloonBodies > 0 do
-                                wait(1) -- Ожидание, пока BalloonBody не исчезнет
+                                wait(0.5) -- Ожидание, пока BalloonBody не исчезнет
                                 nearbyBalloonBodies = getNearbyBalloonBodies()
                             end
-                            wait(10)
+                            wait(8)
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
                             walkingRandom = true
+							wait(0.05)
+							teleportBeesToPlayer()
                             break
                         end
                     end
