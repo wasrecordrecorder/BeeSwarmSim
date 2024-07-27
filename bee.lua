@@ -2259,6 +2259,45 @@ end
 -- Обработка нажатия кнопки Tp-Windy
 tpWindyButton.MouseButton1Click:Connect(teleportToWindy)
 
+-- Создаем кнопку Tp-Vicious
+local tpViciousButton = Instance.new("TextButton")
+tpViciousButton.Name = "TpViciousButton"
+tpViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+tpViciousButton.Position = UDim2.new(0.81, 0, 0.25, 0) -- Позиция кнопки
+tpViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+tpViciousButton.BorderSizePixel = 0
+tpViciousButton.Text = "Tp-Vicious"
+tpViciousButton.TextColor3 = Color3.new(1, 1, 1)
+tpViciousButton.Font = Enum.Font.SourceSansBold
+tpViciousButton.TextSize = 16
+tpViciousButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = tpViciousButton
+
+-- Функция для телепортации к объекту с именем, содержащим "Vicious"
+local function teleportToVicious()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local monsters = game.Workspace.Monsters:GetChildren()
+
+    for _, monster in ipairs(monsters) do
+        if monster.Name:find("Vicious") then
+            humanoidRootPart.CFrame = monster.CFrame
+            print("Телепортировано к монстру: " .. monster.Name)
+            return
+        end
+    end
+
+    print("Монстр с именем, содержащим 'Vicious', не найден")
+end
+
+-- Обработка нажатия кнопки Tp-Vicious
+tpViciousButton.MouseButton1Click:Connect(teleportToVicious)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
