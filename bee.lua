@@ -2346,7 +2346,6 @@ end
 -- Обработка нажатия кнопки SpawnVicious
 spawnViciousButton.MouseButton1Click:Connect(teleportToSpawnVicious)
 
--- Создаем кнопку anti-vicious
 local antiViciousButton = Instance.new("TextButton")
 antiViciousButton.Name = "AntiViciousButton"
 antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
@@ -2364,8 +2363,9 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = antiViciousButton
 
--- Переменная для хранения состояния anti-vicious
+-- Переменные для хранения состояния anti-vicious и центральной позиции
 local antiViciousEnabled = false
+local CenterPos = nil
 
 local function moveToSafePlace(warningDisk)
     if not antiViciousEnabled then return end
@@ -2378,28 +2378,32 @@ local function moveToSafePlace(warningDisk)
     if warningDisk and rootPart then
         local playerPosition = rootPart.Position
         local warningDiskPosition = warningDisk.Position
-        local distance = (playerPosition - warningDiskPosition).Magnitude
+        local distanceToCenter = (playerPosition - CenterPos).Magnitude
 
-        if distance < 50 then -- Установите подходящее расстояние
-            local direction = (playerPosition - warningDiskPosition).Unit
-            local safeDistance = 60 -- Установите подходящее расстояние
-            local safePosition = playerPosition + direction * safeDistance
+        if distanceToCenter < 40 then -- Проверка на расстояние от центральной позиции
+            local distance = (playerPosition - warningDiskPosition).Magnitude
 
-            -- Проверка на столкновение с препятствиями
-            local ray = Ray.new(playerPosition, direction * safeDistance)
-            local hit, position = game.Workspace:FindPartOnRay(ray, character)
+            if distance < 50 then -- Установите подходящее расстояние
+                local direction = (playerPosition - warningDiskPosition).Unit
+                local safeDistance = 60 -- Установите подходящее расстояние
+                local safePosition = playerPosition + direction * safeDistance
 
-            if hit then
-                safePosition = position - direction * 5 -- Убегаем на 5 единиц от препятствия
-            end
+                -- Проверка на столкновение с препятствиями
+                local ray = Ray.new(playerPosition, direction * safeDistance)
+                local hit, position = game.Workspace:FindPartOnRay(ray, character)
 
-            humanoid:MoveTo(safePosition)
-            humanoid.MoveToFinished:Connect(function(reached)
-                if not reached then
-                    print("Игрок не смог достичь безопасной позиции")
-                    -- Дополнительные действия, если игрок не смог достичь безопасной позиции
+                if hit then
+                    safePosition = position - direction * 5 -- Убегаем на 5 единиц от препятствия
                 end
-            end)
+
+                humanoid:MoveTo(safePosition)
+                humanoid.MoveToFinished:Connect(function(reached)
+                    if not reached then
+                        print("Игрок не смог достичь безопасной позиции")
+                        -- Дополнительные действия, если игрок не смог достичь безопасной позиции
+                    end
+                end)
+            end
         end
     end
 end
@@ -2427,11 +2431,10 @@ local function toggleAntiVicious()
     antiViciousButton.BackgroundColor3 = antiViciousEnabled and Color3.new(0, 1, 0) or Color3.new(0.5, 0.5, 0.5)
 
     if antiViciousEnabled then
-        -- Запускаем функцию moveToSafePlace в цикле
-        while antiViciousEnabled do
-            moveToSafePlace()
-            wait(1) -- Установите подходящий интервал проверки
-        end
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local rootPart = character:WaitForChild("HumanoidRootPart")
+        CenterPos = rootPart.Position -- Сохраняем текущую позицию как центральную
     end
 end
 
