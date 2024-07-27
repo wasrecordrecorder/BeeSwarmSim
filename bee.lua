@@ -2292,9 +2292,14 @@ local function teleportToVicious()
 
     for _, monster in ipairs(monsters) do
         if monster.Name:find("Vicious") then
-            humanoidRootPart.CFrame = monster.CFrame
-            print("Телепортировано к монстру: " .. monster.Name)
-            return
+            local monsterPart = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("Torso") or monster:FindFirstChild("Head")
+            if monsterPart and monsterPart:IsA("BasePart") then
+                humanoidRootPart.CFrame = monsterPart.CFrame
+                print("Телепортировано к монстру: " .. monster.Name)
+                return
+            else
+                print("Не удалось найти BasePart у монстра: " .. monster.Name)
+            end
         end
     end
 
@@ -2340,6 +2345,65 @@ end
 
 -- Обработка нажатия кнопки SpawnVicious
 spawnViciousButton.MouseButton1Click:Connect(teleportToSpawnVicious)
+
+-- Создаем кнопку anti-vicious
+local antiViciousButton = Instance.new("TextButton")
+antiViciousButton.Name = "AntiViciousButton"
+antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+antiViciousButton.Position = UDim2.new(0.81, 0, 0.37, 0) -- Позиция кнопки
+antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+antiViciousButton.BorderSizePixel = 0
+antiViciousButton.Text = "Anti-Vicious: off"
+antiViciousButton.TextColor3 = Color3.new(1, 1, 1)
+antiViciousButton.Font = Enum.Font.SourceSansBold
+antiViciousButton.TextSize = 16
+antiViciousButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = antiViciousButton
+
+-- Переменная для хранения состояния anti-vicious
+local antiViciousEnabled = false
+
+-- Функция для перемещения игрока в безопасное место
+local function moveToSafePlace()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local warningDisk = game.Workspace.Particles.WarningDisk
+
+    if warningDisk then
+        local playerPosition = character.HumanoidRootPart.Position
+        local warningDiskPosition = warningDisk.Position
+        local distance = (playerPosition - warningDiskPosition).Magnitude
+
+        if distance < 50 then -- Установите подходящее расстояние
+            local safePosition = playerPosition + (playerPosition - warningDiskPosition).Unit * 60 -- Установите подходящее расстояние
+            humanoid:MoveTo(safePosition)
+            humanoid.MoveToFinished:Wait()
+        end
+    end
+end
+
+-- Функция для включения/выключения anti-vicious
+local function toggleAntiVicious()
+    antiViciousEnabled = not antiViciousEnabled
+    antiViciousButton.Text = "Anti-Vicious: " .. (antiViciousEnabled and "on" or "off")
+    antiViciousButton.BackgroundColor3 = antiViciousEnabled and Color3.new(0, 1, 0) or Color3.new(0.5, 0.5, 0.5)
+
+    if antiViciousEnabled then
+        -- Запускаем функцию moveToSafePlace в цикле
+        while antiViciousEnabled do
+            moveToSafePlace()
+            wait(1) -- Установите подходящий интервал проверки
+        end
+    end
+end
+
+-- Обработка нажатия кнопки anti-vicious
+antiViciousButton.MouseButton1Click:Connect(toggleAntiVicious)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
