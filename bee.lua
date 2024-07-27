@@ -2368,21 +2368,25 @@ buttonCorner.Parent = antiViciousButton
 local antiViciousEnabled = false
 
 local function moveToSafePlace(warningDisk)
+    if not antiViciousEnabled then return end
+
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
+    local rootPart = character:WaitForChild("HumanoidRootPart")
 
-    if warningDisk then
-        local playerPosition = character.HumanoidRootPart.Position
+    if warningDisk and rootPart then
+        local playerPosition = rootPart.Position
         local warningDiskPosition = warningDisk.Position
         local distance = (playerPosition - warningDiskPosition).Magnitude
 
         if distance < 50 then -- Установите подходящее расстояние
             local direction = (playerPosition - warningDiskPosition).Unit
-            local safePosition = playerPosition + direction * 60 -- Установите подходящее расстояние
+            local safeDistance = 60 -- Установите подходящее расстояние
+            local safePosition = playerPosition + direction * safeDistance
 
             -- Проверка на столкновение с препятствиями
-            local ray = Ray.new(playerPosition, direction * 60)
+            local ray = Ray.new(playerPosition, direction * safeDistance)
             local hit, position = game.Workspace:FindPartOnRay(ray, character)
 
             if hit then
@@ -2400,9 +2404,8 @@ local function moveToSafePlace(warningDisk)
     end
 end
 
--- Функция для отслеживания появления новых объектов
 local function onNewWarningDisk(newDisk)
-    if newDisk.Name == "WarningDisk" then
+    if antiViciousEnabled and newDisk.Name == "WarningDisk" then
         moveToSafePlace(newDisk)
     end
 end
@@ -2412,7 +2415,7 @@ game.Workspace.Particles.ChildAdded:Connect(onNewWarningDisk)
 
 -- Проверяем уже существующие объекты
 for _, disk in ipairs(game.Workspace.Particles:GetChildren()) do
-    if disk.Name == "WarningDisk" then
+    if antiViciousEnabled and disk.Name == "WarningDisk" then
         moveToSafePlace(disk)
     end
 end
