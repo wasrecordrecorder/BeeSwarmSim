@@ -2298,6 +2298,43 @@ end
 -- Обработка нажатия кнопки Tp-Vicious
 tpViciousButton.MouseButton1Click:Connect(teleportToVicious)
 
+-- Создаем кнопку SpawnVicious
+local spawnViciousButton = Instance.new("TextButton")
+spawnViciousButton.Name = "SpawnViciousButton"
+spawnViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+spawnViciousButton.Position = UDim2.new(0.81, 0, 0.31, 0) -- Позиция кнопки
+spawnViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+spawnViciousButton.BorderSizePixel = 0
+spawnViciousButton.Text = "SpawnVicious"
+spawnViciousButton.TextColor3 = Color3.new(1, 1, 1)
+spawnViciousButton.Font = Enum.Font.SourceSansBold
+spawnViciousButton.TextSize = 16
+spawnViciousButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = spawnViciousButton
+
+-- Функция для телепортации к первому объекту в game.Workspace.Particles.WTs
+local function teleportToSpawnVicious()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local particles = game.Workspace.Particles.WTs:GetChildren()
+
+    if #particles > 0 then
+        local firstParticle = particles[1]
+        humanoidRootPart.CFrame = firstParticle.CFrame
+        print("Телепортировано к объекту: " .. firstParticle.Name)
+    else
+        print("Объекты в game.Workspace.Particles.WTs не найдены")
+    end
+end
+
+-- Обработка нажатия кнопки SpawnVicious
+spawnViciousButton.MouseButton1Click:Connect(teleportToSpawnVicious)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
