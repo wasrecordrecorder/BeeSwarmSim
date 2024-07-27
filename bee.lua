@@ -1824,6 +1824,12 @@ game.Workspace.NPCBees.ChildAdded:Connect(function(child)
     end
 end)
 
+game.Workspace.Particles.WTs.ChildAdded:Connect(function(child)
+    if notificationsEnabled then
+        createNotification("Появилась возможность призвать Vicious Bee")
+    end
+end)
+
 local serverHopButton = Instance.new("TextButton")
 serverHopButton.Name = "ServerHopButton"
 serverHopButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
