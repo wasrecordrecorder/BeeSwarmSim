@@ -2415,6 +2415,34 @@ end
 -- Обработка нажатия кнопки anti-vicious
 antiViciousButton.MouseButton1Click:Connect(toggleAntiVicious)
 
+-- Создаем кнопку ClearConsole
+local clearConsoleButton = Instance.new("TextButton")
+clearConsoleButton.Name = "ClearConsoleButton"
+clearConsoleButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+clearConsoleButton.Position = UDim2.new(0.49, 0, 0.31, 0) -- Позиция кнопки слева от anti-vicious
+clearConsoleButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+clearConsoleButton.BorderSizePixel = 0
+clearConsoleButton.Text = "Clear Console"
+clearConsoleButton.TextColor3 = Color3.new(1, 1, 1)
+clearConsoleButton.Font = Enum.Font.SourceSansBold
+clearConsoleButton.TextSize = 16
+clearConsoleButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = clearConsoleButton
+
+-- Функция для очистки консоли
+local function clearConsole()
+    for _, message in ipairs(game:GetService("LogService"):GetLogHistory()) do
+        game:GetService("LogService"):Clear()
+    end
+end
+
+-- Обработка нажатия кнопки ClearConsole
+clearConsoleButton.MouseButton1Click:Connect(clearConsole)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
