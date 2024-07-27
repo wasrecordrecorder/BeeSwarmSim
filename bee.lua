@@ -2380,7 +2380,17 @@ local function moveToSafePlace()
         local distance = (playerPosition - warningDiskPosition).Magnitude
 
         if distance < 50 then -- Установите подходящее расстояние
-            local safePosition = playerPosition + (playerPosition - warningDiskPosition).Unit * 60 -- Установите подходящее расстояние
+            local direction = (playerPosition - warningDiskPosition).Unit
+            local safePosition = playerPosition + direction * 60 -- Установите подходящее расстояние
+
+            -- Проверка на столкновение с препятствиями
+            local ray = Ray.new(playerPosition, direction * 60)
+            local hit, position = game.Workspace:FindPartOnRay(ray, character)
+
+            if hit then
+                safePosition = position - direction * 5 -- Убегаем на 5 единиц от препятствия
+            end
+
             humanoid:MoveTo(safePosition)
             humanoid.MoveToFinished:Wait()
         end
