@@ -2224,6 +2224,41 @@ end
 -- Обработка нажатия кнопки AutoGumdrop
 autoGumdropButton.MouseButton1Click:Connect(toggleAutoGumdrop)
 
+-- Создаем кнопку Tp-Windy
+local tpWindyButton = Instance.new("TextButton")
+tpWindyButton.Name = "TpWindyButton"
+tpWindyButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+tpWindyButton.Position = UDim2.new(0.81, 0, 0.19, 0) -- Позиция кнопки
+tpWindyButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+tpWindyButton.BorderSizePixel = 0
+tpWindyButton.Text = "Tp-Windy"
+tpWindyButton.TextColor3 = Color3.new(1, 1, 1)
+tpWindyButton.Font = Enum.Font.SourceSansBold
+tpWindyButton.TextSize = 16
+tpWindyButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = tpWindyButton
+
+-- Функция для телепортации к объекту Windy
+local function teleportToWindy()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local windy = game.Workspace.NPCBees:FindFirstChild("Windy")
+
+    if windy then
+        humanoidRootPart.CFrame = windy.CFrame
+    else
+        print("Объект Windy не найден в game.Workspace.NPCBees")
+    end
+end
+
+-- Обработка нажатия кнопки Tp-Windy
+tpWindyButton.MouseButton1Click:Connect(teleportToWindy)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
