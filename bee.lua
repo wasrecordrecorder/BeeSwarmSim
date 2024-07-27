@@ -2367,12 +2367,10 @@ buttonCorner.Parent = antiViciousButton
 -- Переменная для хранения состояния anti-vicious
 local antiViciousEnabled = false
 
--- Функция для перемещения игрока в безопасное место
-local function moveToSafePlace()
+local function moveToSafePlace(warningDisk)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    local warningDisk = game.Workspace.Particles.WarningDisk
 
     if warningDisk then
         local playerPosition = character.HumanoidRootPart.Position
@@ -2392,8 +2390,30 @@ local function moveToSafePlace()
             end
 
             humanoid:MoveTo(safePosition)
-            humanoid.MoveToFinished:Wait()
+            humanoid.MoveToFinished:Connect(function(reached)
+                if not reached then
+                    print("Игрок не смог достичь безопасной позиции")
+                    -- Дополнительные действия, если игрок не смог достичь безопасной позиции
+                end
+            end)
         end
+    end
+end
+
+-- Функция для отслеживания появления новых объектов
+local function onNewWarningDisk(newDisk)
+    if newDisk.Name == "WarningDisk" then
+        moveToSafePlace(newDisk)
+    end
+end
+
+-- Подключаем событие для отслеживания появления новых объектов
+game.Workspace.Particles.ChildAdded:Connect(onNewWarningDisk)
+
+-- Проверяем уже существующие объекты
+for _, disk in ipairs(game.Workspace.Particles:GetChildren()) do
+    if disk.Name == "WarningDisk" then
+        moveToSafePlace(disk)
     end
 end
 
