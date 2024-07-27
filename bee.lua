@@ -2350,7 +2350,7 @@ spawnViciousButton.MouseButton1Click:Connect(teleportToSpawnVicious)
 local antiViciousButton = Instance.new("TextButton")
 antiViciousButton.Name = "AntiViciousButton"
 antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-antiViciousButton.Position = UDim2.new(0.81, 0, 0.37, 0) -- Позиция кнопки
+antiViciousButton.Position = UDim2.new(0.65, 0, 0.31, 0) -- Позиция кнопки
 antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 antiViciousButton.BorderSizePixel = 0
 antiViciousButton.Text = "Anti-Vicious: off"
