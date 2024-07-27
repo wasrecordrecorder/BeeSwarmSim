@@ -128,7 +128,22 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = clickButton
 
--- Анимация нажатия кнопки
+-- Функция для клика по всем объектам в game.Workspace.HiddenStickers
+local function clickAllStickers()
+    -- Получаем доступ к Workspace и HiddenStickers
+    local workspace = game:GetService("Workspace")
+    local hiddenStickers = workspace.HiddenStickers
+
+    -- Перебираем все дочерние объекты в HiddenStickers
+    for _, sticker in ipairs(hiddenStickers:GetChildren()) do
+        -- Получаем ClickDetector
+        local clickDetector = sticker:FindFirstChildOfClass("ClickDetector")
+        -- Кликаем по объекту
+        fireclickdetector(clickDetector)
+    end
+end
+
+-- Анимация нажатия кнопки и вызов функции clickAllStickers
 clickButton.MouseButton1Click:Connect(function()
     clickButton.BackgroundColor3 = Color3.new(78/255, 87/255, 84/255) -- Темнее при нажатии
     clickButton.TextSize = 14 -- Уменьшаем размер текста при нажатии
@@ -136,13 +151,8 @@ clickButton.MouseButton1Click:Connect(function()
     clickButton.BackgroundColor3 = Color3.new(71/255, 74/255, 81/255) -- Возвращаем исходный цвет
     clickButton.TextSize = 16 -- Возвращаем исходный размер текста
 
-    -- Функция для клика по объектам в папке HiddenStickers
-    local hiddenStickers = game.Workspace.HiddenStickers:GetChildren()
-    for _, sticker in ipairs(hiddenStickers) do
-        if sticker:IsA("BasePart") then
-            fireclickdetector(sticker:FindFirstChildOfClass("ClickDetector"))
-        end
-    end
+    -- Вызываем функцию клика по стикерам
+    clickAllStickers()
 end)
 
 local noClipButton = Instance.new("TextButton")
@@ -1604,7 +1614,6 @@ local function checkHealthAndTeleport()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-
     if humanoid.Health < humanoid.MaxHealth * 0.5 then
         walkingRandom = false
         character.HumanoidRootPart.CFrame = safeCFrame
@@ -1639,7 +1648,7 @@ local function walkRandom()
         local capacity = player.CoreStats.Capacity.Value
         if pollen >= capacity then
             walkingRandom = false
-            wait(0.5)
+            wait(0.2)
             for _, hive in ipairs(hives) do
                 local ownerValue = hive:FindFirstChild("Owner")
                 if ownerValue then
@@ -1663,7 +1672,7 @@ local function walkRandom()
                                 wait(0.5) -- Ожидание, пока BalloonBody не исчезнет
                                 nearbyBalloonBodies = getNearbyBalloonBodies()
                             end
-                            wait(8)
+                            wait(4)
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
                             walkingRandom = true
@@ -1742,38 +1751,6 @@ randomWalkButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Функция для обработки смерти игрока
-local function onPlayerDied()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-
-    humanoid.Died:Connect(function()
-        if walkingRandom then
-            walkingRandom = false
-            player.CharacterAdded:Wait() -- Wait for respawn
-            wait(5) -- Wait 5 seconds after respawn
-            local newCharacter = player.Character
-            local humanoidRootPart = newCharacter:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                humanoidRootPart.CFrame = CFrame.new(initialPosition)
-            end
-            wait(5)
-            if humanoidRootPart then
-                humanoidRootPart.CFrame = CFrame.new(initialPosition)
-            end
-            wait(3)
-            walkRandom()
-        end
-    end)
-end
-
-game.Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        local humanoid = character:WaitForChild("Humanoid")
-        humanoid.Died:Connect(onPlayerDied)
-    end)
-end)
 
 -- Создаем кнопку для переключения уведомлений
 local notificationsButton = Instance.new("TextButton")
@@ -1959,6 +1936,293 @@ end
 
 -- Обработка нажатия кнопки Walk Items
 walkItemsButton.MouseButton1Click:Connect(toggleWalkItems)
+
+local teleportButton = Instance.new("TextButton")
+teleportButton.Name = "RoseFarm"
+teleportButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+teleportButton.Position = UDim2.new(0.33, 0, 0.19, 0) -- Позиция кнопки
+teleportButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+teleportButton.BorderSizePixel = 0
+teleportButton.Text = "RoseFarm"
+teleportButton.TextColor3 = Color3.new(1, 1, 1)
+teleportButton.Font = Enum.Font.SourceSansBold
+teleportButton.TextSize = 16
+teleportButton.Parent = scrollFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = teleportButton
+
+local function teleportAndPressOne()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	initialPosition = Vector3.new(-325, 20, 127)
+	wait(0.1)
+    humanoidRootPart.CFrame = CFrame.new(initialPosition)
+    wait(0.4)
+    local virtualInputManager = game:GetService("VirtualInputManager")
+    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+	wait(0.3)
+	walkRandom()
+end
+
+teleportButton.MouseButton1Click:Connect(teleportAndPressOne)
+
+local teleportButton1 = Instance.new("TextButton")
+teleportButton1.Name = "ClubnikaFarm"
+teleportButton1.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+teleportButton1.Position = UDim2.new(0.33, 0, 0.25, 0) -- Позиция кнопки
+teleportButton1.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+teleportButton1.BorderSizePixel = 0
+teleportButton1.Text = "ClubnikaFarm"
+teleportButton1.TextColor3 = Color3.new(1, 1, 1)
+teleportButton1.Font = Enum.Font.SourceSansBold
+teleportButton1.TextSize = 16
+teleportButton1.Parent = scrollFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = teleportButton1
+
+local function teleportAndPressOne1()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	initialPosition = Vector3.new(-178, 20, -9)
+	wait(0.1)
+    humanoidRootPart.CFrame = CFrame.new(initialPosition)
+    wait(0.4)
+    local virtualInputManager = game:GetService("VirtualInputManager")
+    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+	wait(0.3)
+	walkRandom()
+end
+
+teleportButton1.MouseButton1Click:Connect(teleportAndPressOne1)
+
+local teleportButton2 = Instance.new("TextButton")
+teleportButton2.Name = "GribiFarm"
+teleportButton2.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+teleportButton2.Position = UDim2.new(0.49, 0, 0.19, 0) -- Позиция кнопки
+teleportButton2.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+teleportButton2.BorderSizePixel = 0
+teleportButton2.Text = "GribiFarm"
+teleportButton2.TextColor3 = Color3.new(1, 1, 1)
+teleportButton2.Font = Enum.Font.SourceSansBold
+teleportButton2.TextSize = 16
+teleportButton2.Parent = scrollFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = teleportButton2
+
+local function teleportAndPressOne2()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	initialPosition = Vector3.new(-89, 4.4, 111)
+	wait(0.1)
+    humanoidRootPart.CFrame = CFrame.new(initialPosition)
+    wait(0.4)
+    local virtualInputManager = game:GetService("VirtualInputManager")
+    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+	wait(0.3)
+	walkRandom()
+end
+
+teleportButton2.MouseButton1Click:Connect(teleportAndPressOne2)
+
+local teleportButton3 = Instance.new("TextButton")
+teleportButton3.Name = "PeperFarm"
+teleportButton3.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+teleportButton3.Position = UDim2.new(0.65, 0, 0.19, 0) -- Позиция кнопки
+teleportButton3.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+teleportButton3.BorderSizePixel = 0
+teleportButton3.Text = "PeperFarm"
+teleportButton3.TextColor3 = Color3.new(1, 1, 1)
+teleportButton3.Font = Enum.Font.SourceSansBold
+teleportButton3.TextSize = 16
+teleportButton3.Parent = scrollFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = teleportButton3
+
+local function teleportAndPressOne3()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	initialPosition = Vector3.new(-488, 123.6, 535)
+	wait(0.1)
+    humanoidRootPart.CFrame = CFrame.new(initialPosition)
+    wait(0.4)
+    local virtualInputManager = game:GetService("VirtualInputManager")
+    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+	wait(0.3)
+	walkRandom()
+end
+
+teleportButton3.MouseButton1Click:Connect(teleportAndPressOne3)
+
+local stopFarmButton = Instance.new("TextButton")
+stopFarmButton.Name = "StopFarm"
+stopFarmButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+stopFarmButton.Position = UDim2.new(0.17, 0, 0.25, 0) 
+stopFarmButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+stopFarmButton.BorderSizePixel = 0
+stopFarmButton.Text = "StopFarm"
+stopFarmButton.TextColor3 = Color3.new(1, 1, 1)
+stopFarmButton.Font = Enum.Font.SourceSansBold
+stopFarmButton.TextSize = 16
+stopFarmButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = stopFarmButton
+
+-- Функция для кнопки "StopFarm" (пока ничего не делает)
+local function stopFarm()
+    walkingRandom = false
+end
+
+-- Обработка нажатия кнопки
+stopFarmButton.MouseButton1Click:Connect(stopFarm)
+
+-- Создаем кнопку для рандомного хождения по объектам из game.Workspace.Goo в радиусе 60 метров
+local randomWalkGooButton = Instance.new("TextButton")
+randomWalkGooButton.Name = "RandomWalkGoo"
+randomWalkGooButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+randomWalkGooButton.Position = UDim2.new(0.49, 0, 0.25, 0) -- Позиция кнопки (под предыдущими кнопками)
+randomWalkGooButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+randomWalkGooButton.BorderSizePixel = 0
+randomWalkGooButton.Text = "Walk Goo: Off"
+randomWalkGooButton.TextColor3 = Color3.new(1, 1, 1)
+randomWalkGooButton.Font = Enum.Font.SourceSansBold
+randomWalkGooButton.TextSize = 16
+randomWalkGooButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = randomWalkGooButton
+
+-- Переменная для отслеживания состояния рандомного хождения
+local randomWalkingGoo = false
+
+-- Функция для рандомного хождения по объектам из game.Workspace.Goo в радиусе 60 метров
+local function startRandomWalkGoo()
+    if randomWalkingGoo then return end
+    randomWalkingGoo = true
+    randomWalkGooButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+    randomWalkGooButton.Text = "Walk Goo: On"
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    -- Запускаем использование гамдропов каждые 10 секунд
+    spawn(function()
+        while randomWalkingGoo do
+            wait(10)
+            local A = {
+                ["Name"] = "Gumdrops"
+            }
+            local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+            Event:FireServer(A)
+        end
+    end)
+
+    while randomWalkingGoo do
+        local goos = game.Workspace.Goo:GetChildren()
+        local nearbyGoos = {}
+
+        for _, goo in ipairs(goos) do
+            if (goo.Position - character.HumanoidRootPart.Position).Magnitude <= 60 then
+                table.insert(nearbyGoos, goo)
+            end
+        end
+
+        if #nearbyGoos > 0 then
+            local randomGoo = nearbyGoos[math.random(#nearbyGoos)]
+            humanoid:MoveTo(randomGoo.Position)
+            humanoid.MoveToFinished:Wait()
+        else
+            print("No Goo objects found within 60 meters")
+        end
+        wait(1) -- Задержка перед следующим хождением
+    end
+end
+
+-- Функция для остановки рандомного хождения
+local function stopRandomWalkGoo()
+    randomWalkingGoo = false
+    randomWalkGooButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+    randomWalkGooButton.Text = "Walk Goo: Off"
+end
+
+-- Обработка нажатия кнопки
+randomWalkGooButton.MouseButton1Click:Connect(function()
+    if not randomWalkingGoo then
+        startRandomWalkGoo()
+    else
+        stopRandomWalkGoo()
+    end
+end)
+
+-- Создаем кнопку AutoGumdrop
+local autoGumdropButton = Instance.new("TextButton")
+autoGumdropButton.Name = "AutoGumdropButton"
+autoGumdropButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+autoGumdropButton.Position = UDim2.new(0.65, 0, 0.25, 0) -- Позиция кнопки
+autoGumdropButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+autoGumdropButton.BorderSizePixel = 0
+autoGumdropButton.Text = "AutoGumdrop: off"
+autoGumdropButton.TextColor3 = Color3.new(1, 1, 1)
+autoGumdropButton.Font = Enum.Font.SourceSansBold
+autoGumdropButton.TextSize = 16
+autoGumdropButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = autoGumdropButton
+
+-- Переменная для хранения состояния AutoGumdrop
+local autoGumdropEnabled = false
+
+-- Функция для кидания гамдропов
+local function throwGumdrops()
+    while autoGumdropEnabled do
+        wait(10) -- Интервал в 10 секунд
+        local A = {
+            ["Name"] = "Gumdrops"
+        }
+        local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+        Event:FireServer(A)
+    end
+end
+
+-- Функция для переключения состояния AutoGumdrop
+local function toggleAutoGumdrop()
+    autoGumdropEnabled = not autoGumdropEnabled
+    if autoGumdropEnabled then
+        autoGumdropButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        autoGumdropButton.Text = "AutoGumdrop: on"
+        spawn(throwGumdrops) -- Запускаем функцию в отдельном потоке
+    else
+        autoGumdropButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        autoGumdropButton.Text = "AutoGumdrop: off"
+    end
+end
+
+-- Обработка нажатия кнопки AutoGumdrop
+autoGumdropButton.MouseButton1Click:Connect(toggleAutoGumdrop)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
