@@ -2553,11 +2553,15 @@ local function toggleMoveToCrosshair()
     if moveToCrosshairEnabled then
         toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         toggleMoveToCrosshairButton.Text = "Stop Move to Crosshair"
-        game:GetService("RunService").RenderStepped:Connect(function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.MoveToFinished:Connect(function(reached)
             if moveToCrosshairEnabled then
                 moveToCrosshair()
             end
         end)
+        moveToCrosshair() -- Начинаем движение к первому объекту
     else
         toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
