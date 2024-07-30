@@ -2327,7 +2327,7 @@ local function teleportToWindy()
         print("Объект Windy не найден в game.Workspace.NPCBees")
     end
 end
-
+																
 -- Обработка нажатия кнопки Tp-Windy
 tpWindyButton.MouseButton1Click:Connect(teleportToWindy)
 
@@ -2429,147 +2429,94 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = antiViciousButton
 
--- Переменные для хранения состояния anti-vicious и центральной позиции
-local antiViciousEnabled = false
-local CenterPos = nil
+antiViciousButton.MouseButton1Click:Connect()
 
-local function moveToSafePlace(warningDisk)
-    if not antiViciousEnabled then return end
+local antiViciousButton = Instance.new("TextButton")
+antiViciousButton.Name = "AntiViciousButton"
+antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+antiViciousButton.Position = UDim2.new(0.65, 0, 0.31, 0) -- Позиция кнопки
+antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+antiViciousButton.BorderSizePixel = 0
+antiViciousButton.Text = "Anti-Vicious: off"
+antiViciousButton.TextColor3 = Color3.new(1, 1, 1)
+antiViciousButton.Font = Enum.Font.SourceSansBold
+antiViciousButton.TextSize = 16
+antiViciousButton.Parent = scrollFrame
 
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = antiViciousButton
+
+local function freezeCharacter()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    humanoid.PlatformStand = true
+    humanoidRootPart.Anchored = true
+end
 
-    if warningDisk and rootPart then
-        local playerPosition = rootPart.Position
-        local warningDiskPosition = warningDisk.Position
-        local distanceToCenter = (playerPosition - CenterPos).Magnitude
+-- Функция для разморозки персонажа
+local function unfreezeCharacter()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-        if distanceToCenter < 40 then -- Проверка на расстояние от центральной позиции
-            local distance = (playerPosition - warningDiskPosition).Magnitude
+    -- Включение анимаций и физики
+    humanoid.PlatformStand = false
+    humanoidRootPart.Anchored = false
+end
 
-            if distance < 50 then -- Установите подходящее расстояние
-                local direction = (playerPosition - warningDiskPosition).Unit
-                local safeDistance = 60 -- Установите подходящее расстояние
-                local safePosition = playerPosition + direction * safeDistance
+local isActive = false
+local teleportTimer = nil
 
-                -- Проверка на столкновение с препятствиями
-                local ray = Ray.new(playerPosition, direction * safeDistance)
-                local hit, position = game.Workspace:FindPartOnRay(ray, character)
+-- Функция для телепортации к монстру с именем, содержащим "Vicious"
+local function AutoVicious()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local monsters = game.Workspace.Monsters:GetChildren()
 
-                if hit then
-                    safePosition = position - direction * 5 -- Убегаем на 5 единиц от препятствия
-                end
-
-                humanoid:MoveTo(safePosition)
-                humanoid.MoveToFinished:Connect(function(reached)
-                    if not reached then
-                        print("Игрок не смог достичь безопасной позиции")
-                        -- Дополнительные действия, если игрок не смог достичь безопасной позиции
-                    end
-                end)
+    for _, monster in ipairs(monsters) do
+        if monster.Name:find("Vicious") then
+            local monsterPart = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("Torso") or monster:FindFirstChild("Head")
+            if monsterPart and monsterPart:IsA("BasePart") then
+                local direction = -monsterPart.CFrame.lookVector
+                local offset = direction * 5
+                local teleportPosition = monsterPart.Position + offset
+                humanoidRootPart.CFrame = CFrame.new(teleportPosition)
+                return
             end
         end
     end
 end
 
-local function onNewWarningDisk(newDisk)
-    if antiViciousEnabled and newDisk.Name == "WarningDisk" then
-        moveToSafePlace(newDisk)
-    end
-end
-
--- Подключаем событие для отслеживания появления новых объектов
-game.Workspace.Particles.ChildAdded:Connect(onNewWarningDisk)
-
--- Проверяем уже существующие объекты
-for _, disk in ipairs(game.Workspace.Particles:GetChildren()) do
-    if antiViciousEnabled and disk.Name == "WarningDisk" then
-        moveToSafePlace(disk)
-    end
-end
-
--- Функция для включения/выключения anti-vicious
-local function toggleAntiVicious()
-    antiViciousEnabled = not antiViciousEnabled
-    antiViciousButton.Text = "Anti-Vicious: " .. (antiViciousEnabled and "on" or "off")
-    antiViciousButton.BackgroundColor3 = antiViciousEnabled and Color3.new(0, 1, 0) or Color3.new(0.5, 0.5, 0.5)
-
-    if antiViciousEnabled then
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local rootPart = character:WaitForChild("HumanoidRootPart")
-        CenterPos = rootPart.Position -- Сохраняем текущую позицию как центральную
-    end
-end
-
--- Обработка нажатия кнопки anti-vicious
-antiViciousButton.MouseButton1Click:Connect(toggleAntiVicious)
-
--- Переменная для отслеживания состояния постоянной ходьбы к Crosshair
-local moveToCrosshairEnabled = false
-
--- Список для хранения посещенных объектов Crosshair
-local visitedCrosshairs = {}
-
--- Создаем кнопку для включения/выключения постоянной ходьбы к Crosshair
-local toggleMoveToCrosshairButton = Instance.new("TextButton")
-toggleMoveToCrosshairButton.Name = "ToggleMoveToCrosshairButton"
-toggleMoveToCrosshairButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-toggleMoveToCrosshairButton.Position = UDim2.new(0.01, 0, 0.31, 0) -- Позиция кнопки
-toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
-toggleMoveToCrosshairButton.BorderSizePixel = 0
-toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
-toggleMoveToCrosshairButton.TextColor3 = Color3.new(1, 1, 1)
-toggleMoveToCrosshairButton.Font = Enum.Font.SourceSansBold
-toggleMoveToCrosshairButton.TextSize = 16
-toggleMoveToCrosshairButton.Parent = scrollFrame
-
--- Закругляем края кнопки
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0.3, 0)
-buttonCorner.Parent = toggleMoveToCrosshairButton
-
--- Функция для перемещения игрока к Crosshair, если он находится в радиусе 40 метров и не был посещен
-local function moveToCrosshair()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local playerPosition = character.HumanoidRootPart.Position
-    local crosshair = game.Workspace.Particles:FindFirstChild("Crosshair")
-
-    if crosshair and (crosshair.Position - playerPosition).Magnitude <= 40 and not visitedCrosshairs[crosshair] then
-        humanoid:MoveTo(crosshair.Position)
-        visitedCrosshairs[crosshair] = true -- Помечаем объект как посещенный
-    else
-        print("Crosshair object not found, too far away, or already visited in game.Workspace.Particles")
-    end
-end
-
--- Функция для включения/выключения постоянной ходьбы к Crosshair
-local function toggleMoveToCrosshair()
-    moveToCrosshairEnabled = not moveToCrosshairEnabled
-    if moveToCrosshairEnabled then
-        toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
-        toggleMoveToCrosshairButton.Text = "Stop Move to Crosshair"
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:WaitForChild("Humanoid")
-        humanoid.MoveToFinished:Connect(function(reached)
-            if moveToCrosshairEnabled then
-                moveToCrosshair()
-            end
+-- Функция для управления состоянием кнопки
+local function toggleAutoVicious()
+    isActive = not isActive
+    if isActive then
+        antiViciousButton.Text = "Anti-Vicious: on"
+        antiViciousButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+		freezeCharacter()
+        teleportTimer = game:GetService("RunService").Heartbeat:Connect(function()
+            AutoVicious()
+            wait(4)
         end)
-        moveToCrosshair() -- Начинаем движение к первому объекту
     else
-        toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
-        toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
+        antiViciousButton.Text = "Anti-Vicious: off"
+        antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+		unfreezeCharacter()
+        if teleportTimer then
+            teleportTimer:Disconnect()
+            teleportTimer = nil
+        end
     end
 end
 
--- Обработка нажатия кнопки
-toggleMoveToCrosshairButton.MouseButton1Click:Connect(toggleMoveToCrosshair)
+-- Подключаем функцию к событию клика
+antiViciousButton.MouseButton1Click:Connect(toggleAutoVicious)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
