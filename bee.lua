@@ -1804,6 +1804,7 @@ local function walkRandom()
 
         if hasCrosshairs then
             moveToCrosshairs()
+            wait(1) -- Добавлена задержка после перемещения к "Crosshair"
         elseif #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
             if math.random() < 0.5 then
                 local closestCollectible = nearbyCollectibles[1]
