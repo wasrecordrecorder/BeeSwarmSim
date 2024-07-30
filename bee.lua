@@ -2553,7 +2553,11 @@ local function toggleMoveToCrosshair()
     if moveToCrosshairEnabled then
         toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         toggleMoveToCrosshairButton.Text = "Stop Move to Crosshair"
-        game:GetService("RunService").RenderStepped:Connect(moveToCrosshair) -- Подключаем функцию к RenderStepped
+        game:GetService("RunService").RenderStepped:Connect(function()
+            if moveToCrosshairEnabled then
+                moveToCrosshair()
+            end
+        end)
     else
         toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
