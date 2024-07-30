@@ -2562,7 +2562,6 @@ local function moveToCrosshairs()
 
     if nearestCrosshair then
         humanoid:MoveTo(nearestCrosshair.Position)
-        humanoid.MoveToFinished:Wait() -- Ожидание завершения перемещения
     else
         print("No Crosshair found")
     end
