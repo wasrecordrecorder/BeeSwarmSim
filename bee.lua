@@ -1,5 +1,4 @@
 if game.Workspace:FindFirstChild("Gates") then
-    -- Удаляем объект Gates
     game.Workspace.Gates:Destroy()
     print("Объект Gates успешно удален из Workspace.")
 else
@@ -10,6 +9,43 @@ repeat wait() until game:IsLoaded()
     game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):ClickButton2(Vector2.new())
 end)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local targetNicknames = {"was_record", "fggfgfggfffg"}
+
+local function highlightPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        for _, nickname in ipairs(targetNicknames) do
+            if player.Name == nickname then
+                local character = player.Character
+                if character then
+                    character.HumanoidRootPart.BrickColor = BrickColor.new("Bright red")
+		    character.HumanoidRootPart.LocalTransparencyModifier = 0
+                end
+            end
+        end
+    end
+end
+
+-- Функция для проверки и обновления подсветки каждый кадр
+local function onRenderStep()
+    highlightPlayers()
+    wait(0.1)
+end
+
+-- Подключаем функцию к событию RenderStepped
+RunService.RenderStepped:Connect(onRenderStep)
+
+local function checkAndHighlightPlayers()
+    highlightPlayers()
+end
+
+while true do
+    checkAndHighlightPlayers()
+    wait(5)
+end
 
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
