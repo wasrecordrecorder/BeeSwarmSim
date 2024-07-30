@@ -2538,6 +2538,7 @@ buttonCorner.Parent = AutoCrossButton
 -- Переменная для хранения состояния цикла и счетчика перемещений
 local autoCrossEnabled = false
 local autoCrossThread = nil
+local visitedCrosshairs = {} -- Таблица для хранения посещенных объектов
 
 -- Функция для перемещения к ближайшему объекту из Particles
 local function moveToCrosshairs()
@@ -2551,7 +2552,7 @@ local function moveToCrosshairs()
     local nearestDistance = math.huge
 
     for _, crosshair in ipairs(crosshairs) do
-        if crosshair.Name == "Crosshair" then
+        if crosshair.Name == "Crosshair" and not visitedCrosshairs[crosshair] then
             local distance = (crosshair.Position - playerPosition).Magnitude
             if distance < nearestDistance then
                 nearestDistance = distance
@@ -2562,6 +2563,7 @@ local function moveToCrosshairs()
 
     if nearestCrosshair then
         humanoid:MoveTo(nearestCrosshair.Position)
+        visitedCrosshairs[nearestCrosshair] = true -- Помечаем объект как посещенный
     else
         print("No Crosshair found")
     end
