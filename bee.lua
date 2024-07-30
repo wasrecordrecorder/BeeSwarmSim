@@ -2551,7 +2551,7 @@ end
 local function periodicMoveToCrosshair()
     while moveToCrosshairEnabled do
         moveToCrosshair()
-        wait(1) -- Проверять каждую секунду
+	wait(0.01)
     end
 end
 
