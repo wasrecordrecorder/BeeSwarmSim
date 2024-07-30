@@ -10,6 +10,73 @@ repeat wait() until game:IsLoaded()
     game:GetService("VirtualUser"):ClickButton2(Vector2.new())
 end)
 
+local function createESP(player)
+    local character = player.Character
+    if not character then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ESPHighlight"
+    highlight.Adornee = character
+    highlight.FillColor = Color3.new(1, 0, 0) -- Красный цвет
+    highlight.OutlineColor = Color3.new(0, 1, 0) -- Зеленый цвет для контура
+    highlight.Parent = character
+end
+
+local function removeESP(player)
+    local character = player.Character
+    if not character then return end
+
+    local highlight = character:FindFirstChild("ESPHighlight")
+    if highlight then
+        highlight:Destroy()
+    end
+end
+
+local function checkPlayers()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.Name == "was_record" or player.Name == "fggfgfggfffg" then
+            createESP(player)
+        else
+            removeESP(player)
+        end
+    end
+end
+
+-- Запуск проверки игроков при загрузке скрипта и при добавлении нового игрока
+checkPlayers()
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        checkPlayers()
+    end)
+end)
+game.Players.PlayerRemoving:Connect(function(player)
+    removeESP(player)
+end)
+
+-- Периодическая проверка каждые 5 секунд в отдельном потоке
+spawn(function()
+    while true do
+        wait(5)
+        checkPlayers()
+    end
+end)
+
+-- Обновление ESP каждые 3 секунды в отдельном потоке
+spawn(function()
+    while true do
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character and (player.Name == "was_record" or player.Name == "fggfgfggfffg") then
+                local highlight = character:FindFirstChild("ESPHighlight")
+                if highlight then
+                    highlight.Adornee = character
+                end
+            end
+        end
+        wait(3)
+    end
+end)
+
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "CustomScrollGui"
