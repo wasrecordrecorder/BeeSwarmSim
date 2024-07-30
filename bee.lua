@@ -2518,6 +2518,7 @@ end
 -- Подключаем функцию к событию клика
 antiViciousButton.MouseButton1Click:Connect(toggleAutoVicious)
 
+
 local AutoCrossButton = Instance.new("TextButton")
 AutoCrossButton.Name = "AutoCrossButton"
 AutoCrossButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
@@ -2562,7 +2563,16 @@ local function moveToCrosshairs()
     end
 
     if nearestCrosshair then
-        humanoid:MoveTo(nearestCrosshair.Position)
+        local targetPosition = nearestCrosshair.Position
+        local distanceToTarget = (playerPosition - targetPosition).Magnitude
+
+        while distanceToTarget > 2 do -- Пороговое значение для близости к центру объекта
+            humanoid:MoveTo(targetPosition)
+            wait(0.1) -- Небольшая задержка для обновления позиции
+            playerPosition = character.HumanoidRootPart.Position
+            distanceToTarget = (playerPosition - targetPosition).Magnitude
+        end
+
         visitedCrosshairs[nearestCrosshair] = true -- Помечаем объект как посещенный
     else
         print("No Crosshair found")
@@ -2595,6 +2605,9 @@ end
 
 -- Обработка нажатия кнопки AutoCross
 AutoCrossButton.MouseButton1Click:Connect(toggleAutoCross)
+
+
+
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
