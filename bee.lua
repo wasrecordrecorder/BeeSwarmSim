@@ -2507,6 +2507,65 @@ end
 -- Обработка нажатия кнопки anti-vicious
 antiViciousButton.MouseButton1Click:Connect(toggleAntiVicious)
 
+-- Переменная для отслеживания состояния постоянной ходьбы к Crosshair
+local moveToCrosshairEnabled = false
+
+-- Создаем кнопку для включения/выключения постоянной ходьбы к Crosshair
+local toggleMoveToCrosshairButton = Instance.new("TextButton")
+toggleMoveToCrosshairButton.Name = "ToggleMoveToCrosshairButton"
+toggleMoveToCrosshairButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+toggleMoveToCrosshairButton.Position = UDim2.new(0.01, 0, 0.31, 0) -- Позиция кнопки
+toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+toggleMoveToCrosshairButton.BorderSizePixel = 0
+toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
+toggleMoveToCrosshairButton.TextColor3 = Color3.new(1, 1, 1)
+toggleMoveToCrosshairButton.Font = Enum.Font.SourceSansBold
+toggleMoveToCrosshairButton.TextSize = 16
+toggleMoveToCrosshairButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = toggleMoveToCrosshairButton
+
+-- Функция для перемещения игрока к Crosshair, если он находится в радиусе 40 метров
+local function moveToCrosshair()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local playerPosition = character.HumanoidRootPart.Position
+    local crosshair = game.Workspace.Particles:FindFirstChild("Crosshair")
+
+    if crosshair and (crosshair.Position - playerPosition).Magnitude <= 40 then
+        humanoid:MoveTo(crosshair.Position)
+    else
+        print("Crosshair object not found or too far away in game.Workspace.Particles")
+    end
+end
+
+-- Функция для периодической проверки и перемещения к Crosshair
+local function periodicMoveToCrosshair()
+    while moveToCrosshairEnabled do
+        moveToCrosshair()
+        wait(1) -- Проверять каждую секунду
+    end
+end
+
+-- Функция для включения/выключения постоянной ходьбы к Crosshair
+local function toggleMoveToCrosshair()
+    moveToCrosshairEnabled = not moveToCrosshairEnabled
+    if moveToCrosshairEnabled then
+        toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        toggleMoveToCrosshairButton.Text = "Stop Move to Crosshair"
+        periodicMoveToCrosshair() -- Запускаем периодическую проверку
+    else
+        toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
+    end
+end
+
+-- Обработка нажатия кнопки
+toggleMoveToCrosshairButton.MouseButton1Click:Connect(toggleMoveToCrosshair)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
