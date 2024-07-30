@@ -2539,19 +2539,11 @@ local function moveToCrosshair()
     local playerPosition = character.HumanoidRootPart.Position
     local crosshair = game.Workspace.Particles:FindFirstChild("Crosshair")
 
-    if crosshair and (crosshair.Position - playerPosition).Magnitude <= 2000 and not visitedCrosshairs[crosshair] then
+    if crosshair and (crosshair.Position - playerPosition).Magnitude <= 40 and not visitedCrosshairs[crosshair] then
         humanoid:MoveTo(crosshair.Position)
-        visitedCrosshairs[crosshair] = true
+        visitedCrosshairs[crosshair] = true -- Помечаем объект как посещенный
     else
         print("Crosshair object not found, too far away, or already visited in game.Workspace.Particles")
-    end
-end
-
--- Функция для периодической проверки и перемещения к Crosshair
-local function periodicMoveToCrosshair()
-    while moveToCrosshairEnabled do
-        moveToCrosshair()
-	wait(0.1)
     end
 end
 
@@ -2561,7 +2553,7 @@ local function toggleMoveToCrosshair()
     if moveToCrosshairEnabled then
         toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         toggleMoveToCrosshairButton.Text = "Stop Move to Crosshair"
-        periodicMoveToCrosshair()
+        game:GetService("RunService").RenderStepped:Connect(moveToCrosshair) -- Подключаем функцию к RenderStepped
     else
         toggleMoveToCrosshairButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         toggleMoveToCrosshairButton.Text = "Toggle Move to Crosshair"
