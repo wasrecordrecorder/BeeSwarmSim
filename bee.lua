@@ -2518,6 +2518,83 @@ end
 -- Подключаем функцию к событию клика
 antiViciousButton.MouseButton1Click:Connect(toggleAutoVicious)
 
+local AutoCrossButton = Instance.new("TextButton")
+AutoCrossButton.Name = "AutoCrossButton"
+AutoCrossButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+AutoCrossButton.Position = UDim2.new(0.49, 0, 0.31, 0) -- Позиция рядом с кнопкой "Tp-Sprout"
+AutoCrossButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+AutoCrossButton.BorderSizePixel = 0
+AutoCrossButton.Text = "AutoCross: off"
+AutoCrossButton.TextColor3 = Color3.new(1, 1, 1)
+AutoCrossButton.Font = Enum.Font.SourceSansBold
+AutoCrossButton.TextSize = 16
+AutoCrossButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = AutoCrossButton
+
+-- Переменная для хранения состояния цикла и счетчика перемещений
+local autoCrossEnabled = false
+local autoCrossThread = nil
+
+-- Функция для перемещения к ближайшему объекту из Particles
+local function moveToCrosshairs()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local playerPosition = character.HumanoidRootPart.Position
+
+    local crosshairs = game.Workspace.Particles:GetChildren()
+    local nearestCrosshair = nil
+    local nearestDistance = math.huge
+
+    for _, crosshair in ipairs(crosshairs) do
+        if crosshair.Name == "Crosshair" then
+            local distance = (crosshair.Position - playerPosition).Magnitude
+            if distance < nearestDistance then
+                nearestDistance = distance
+                nearestCrosshair = crosshair
+            end
+        end
+    end
+
+    if nearestCrosshair then
+        humanoid:MoveTo(nearestCrosshair.Position)
+        humanoid.MoveToFinished:Wait() -- Ожидание завершения перемещения
+    else
+        print("No Crosshair found")
+    end
+end
+
+-- Функция для включения/выключения цикла перемещения
+local function toggleAutoCross()
+    autoCrossEnabled = not autoCrossEnabled
+    if autoCrossEnabled then
+        AutoCrossButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        AutoCrossButton.Text = "AutoCross: on"
+        autoCrossThread = coroutine.create(function()
+            while autoCrossEnabled do
+                moveToCrosshairs()
+                wait(0.05) -- Задержка перед следующим перемещением
+            end
+        end)
+        coroutine.resume(autoCrossThread)
+    else
+        AutoCrossButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        AutoCrossButton.Text = "AutoCross: off"
+        if autoCrossThread then
+            autoCrossEnabled = false
+            coroutine.close(autoCrossThread)
+            autoCrossThread = nil
+        end
+    end
+end
+
+-- Обработка нажатия кнопки AutoCross
+AutoCrossButton.MouseButton1Click:Connect(toggleAutoCross)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
