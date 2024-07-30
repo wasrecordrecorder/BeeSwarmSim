@@ -2510,6 +2510,9 @@ antiViciousButton.MouseButton1Click:Connect(toggleAntiVicious)
 -- Переменная для отслеживания состояния постоянной ходьбы к Crosshair
 local moveToCrosshairEnabled = false
 
+-- Список для хранения посещенных объектов Crosshair
+local visitedCrosshairs = {}
+
 -- Создаем кнопку для включения/выключения постоянной ходьбы к Crosshair
 local toggleMoveToCrosshairButton = Instance.new("TextButton")
 toggleMoveToCrosshairButton.Name = "ToggleMoveToCrosshairButton"
@@ -2528,7 +2531,7 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = toggleMoveToCrosshairButton
 
--- Функция для перемещения игрока к Crosshair, если он находится в радиусе 40 метров
+-- Функция для перемещения игрока к Crosshair, если он находится в радиусе 40 метров и не был посещен
 local function moveToCrosshair()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
@@ -2536,10 +2539,11 @@ local function moveToCrosshair()
     local playerPosition = character.HumanoidRootPart.Position
     local crosshair = game.Workspace.Particles:FindFirstChild("Crosshair")
 
-    if crosshair and (crosshair.Position - playerPosition).Magnitude <= 40 then
+    if crosshair and (crosshair.Position - playerPosition).Magnitude <= 40 and not visitedCrosshairs[crosshair] then
         humanoid:MoveTo(crosshair.Position)
+        visitedCrosshairs[crosshair] = true -- Помечаем объект как посещенный
     else
-        print("Crosshair object not found or too far away in game.Workspace.Particles")
+        print("Crosshair object not found, too far away, or already visited in game.Workspace.Particles")
     end
 end
 
