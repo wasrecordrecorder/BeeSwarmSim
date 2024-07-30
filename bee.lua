@@ -2437,7 +2437,7 @@ antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопк�
 antiViciousButton.Position = UDim2.new(0.65, 0, 0.31, 0) -- Позиция кнопки
 antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 antiViciousButton.BorderSizePixel = 0
-antiViciousButton.Text = "Anti-Vicious: off"
+antiViciousButton.Text = "Auto-Vicious: off"
 antiViciousButton.TextColor3 = Color3.new(1, 1, 1)
 antiViciousButton.Font = Enum.Font.SourceSansBold
 antiViciousButton.TextSize = 16
@@ -2497,7 +2497,7 @@ end
 local function toggleAutoVicious()
     isActive = not isActive
     if isActive then
-        antiViciousButton.Text = "Anti-Vicious: on"
+        antiViciousButton.Text = "Auto-Vicious: on"
         antiViciousButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
 		freezeCharacter()
         teleportTimer = game:GetService("RunService").Heartbeat:Connect(function()
@@ -2505,7 +2505,7 @@ local function toggleAutoVicious()
             wait(4)
         end)
     else
-        antiViciousButton.Text = "Anti-Vicious: off"
+        antiViciousButton.Text = "Auto-Vicious: off"
         antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
 		unfreezeCharacter()
         if teleportTimer then
