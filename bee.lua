@@ -1707,7 +1707,7 @@ local function moveToCrosshairs()
     for _, crosshair in ipairs(crosshairs) do
         if crosshair.Name == "Crosshair" and not visitedCrosshairs[crosshair] then
             local distance = (crosshair.Position - playerPosition).Magnitude
-            if distance < nearestDistance then
+            if distance < nearestDistance and distance <= radius then -- Добавлена проверка радиуса
                 nearestDistance = distance
                 nearestCrosshair = crosshair
             end
@@ -1727,7 +1727,7 @@ local function moveToCrosshairs()
 
         visitedCrosshairs[nearestCrosshair] = true -- Помечаем объект как посещенный
     else
-        print("No Crosshair found")
+        print("No Crosshair found within radius")
     end
 end
 
