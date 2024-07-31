@@ -1803,6 +1803,7 @@ local function walkRandom()
         end
 
         if hasCrosshairs then
+			print("ggggggggggggggggggggggggggggggggfggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
             moveToCrosshairs()
             wait(0.1) -- Уменьшена задержка до 0.1 секунды
         elseif #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
