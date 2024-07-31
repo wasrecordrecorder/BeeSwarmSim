@@ -2654,6 +2654,8 @@ local function showRadius(radius)
     if radiusPart then
         radiusPart:Destroy()
         radiusPart = nil
+        showRadiusButton.Text = "Show Radius: Off"
+        showRadiusButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
     else
         radiusPart = createRadiusPart(radius)
         radiusPart.Parent = workspace
@@ -2665,6 +2667,9 @@ local function showRadius(radius)
         game:GetService("RunService").Heartbeat:Connect(function()
             updateRadiusPartPosition(radiusPart, humanoidRootPart.Position)
         end)
+
+        showRadiusButton.Text = "Show Radius: On"
+        showRadiusButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
     end
 end
 
