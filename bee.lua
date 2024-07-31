@@ -2631,14 +2631,14 @@ local radiusPart = nil
 local function createRadiusPart(radius)
     local part = Instance.new("Part")
     part.Name = "AutoFarmRadiusPart"
-    part.Shape = Enum.PartType.Cylinder
+    part.Shape = Enum.PartType.Ball -- Используем сферу
     part.Material = Enum.Material.Neon
     part.Color = Color3.new(1, 0, 0) -- Красный цвет
     part.Transparency = 0.7 -- Почти прозрачный
     part.Anchored = true
     part.CanCollide = false
-    part.Size = Vector3.new(radius * 2, 0.2, radius * 2)
-    part.CFrame = CFrame.new(0, 0.1, 0) * CFrame.Angles(math.pi/2, 0, 0) -- Поворачиваем цилиндр, чтобы он был горизонтальным
+    part.Size = Vector3.new(radius * 2, radius * 2, radius * 2)
+    part.CFrame = CFrame.new(0, 0.1, 0)
     return part
 end
 
@@ -2647,7 +2647,7 @@ local function updateRadiusPartPosition(part, playerPosition)
 end
 
 local function updateRadiusPartSize(part, radius)
-    part.Size = Vector3.new(radius * 2, 0.2, radius * 2)
+    part.Size = Vector3.new(radius * 2, radius * 2, radius * 2)
 end
 
 local function showRadius(radius)
