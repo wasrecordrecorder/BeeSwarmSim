@@ -1535,6 +1535,7 @@ local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
 local player = game.Players.LocalPlayer
 
 local function teleportBeesToPlayer()
+
     local playerPosition = player.Character.HumanoidRootPart.Position
     for _, bee in pairs(game.Workspace.Bees:GetChildren()) do
         if bee:IsA("BasePart") then
@@ -1686,48 +1687,9 @@ local function checkHealthAndTeleport()
             wait(1)
         end
         character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
-        wait(0.1)
-        teleportBeesToPlayer()
+		wait(0.1)
+		teleportBeesToPlayer()
         walkingRandom = true
-    end
-end
-
-local visitedCrosshairs = {} -- Таблица для хранения посещенных объектов "Crosshair"
-
-local function moveToCrosshairs()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local playerPosition = character.HumanoidRootPart.Position
-
-    local crosshairs = game.Workspace.Particles:GetChildren()
-    local nearestCrosshair = nil
-    local nearestDistance = math.huge
-
-    for _, crosshair in ipairs(crosshairs) do
-        if crosshair.Name == "Crosshair" and not visitedCrosshairs[crosshair] then
-            local distance = (crosshair.Position - playerPosition).Magnitude
-            if distance < nearestDistance then
-                nearestDistance = distance
-                nearestCrosshair = crosshair
-            end
-        end
-    end
-
-    if nearestCrosshair then
-        local targetPosition = nearestCrosshair.Position
-        local distanceToTarget = (playerPosition - targetPosition).Magnitude
-
-        while distanceToTarget > 2 do -- Пороговое значение для близости к центру объекта
-            humanoid:MoveTo(targetPosition)
-            wait(0.1) -- Небольшая задержка для обновления позиции
-            playerPosition = character.HumanoidRootPart.Position
-            distanceToTarget = (playerPosition - targetPosition).Magnitude
-        end
-
-        visitedCrosshairs[nearestCrosshair] = true -- Помечаем объект как посещенный
-    else
-        print("No Crosshair found")
     end
 end
 
@@ -1765,8 +1727,8 @@ local function walkRandom()
                             wait(0.1)
                             unfreezeCharacter()
                             wait(0.1)
-                            teleportBeesToPlayer()
-                            wait(0.35)
+							teleportBeesToPlayer()
+							wait(0.35)
                             game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
                             while player.CoreStats.Pollen.Value > 0 do
                                 wait(0.5) 
@@ -1780,8 +1742,8 @@ local function walkRandom()
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
                             walkingRandom = true
-                            wait(0.2)
-                            teleportBeesToPlayer()
+							wait(0.2)
+							teleportBeesToPlayer()
                             break
                         end
                     end
@@ -1792,21 +1754,7 @@ local function walkRandom()
         local nearbyMonsters = getNearbyMonsters()
         local nearbyCollectibles = getNearbyCollectibles()
 
-        -- Проверка наличия "Crosshair" в радиусе
-        local crosshairs = game.Workspace.Particles:GetChildren()
-        local hasCrosshairs = false
-        for _, crosshair in ipairs(crosshairs) do
-            if crosshair.Name == "Crosshair" and (crosshair.Position - initialPosition).Magnitude <= radius then
-                hasCrosshairs = true
-                break
-            end
-        end
-
-        if hasCrosshairs then
-			print("ggggggggggggggggggggggggggggggggfggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
-            moveToCrosshairs()
-            wait(0.1) -- Уменьшена задержка до 0.1 секунды
-        elseif #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
+        if #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
             if math.random() < 0.5 then
                 local closestCollectible = nearbyCollectibles[1]
                 local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
