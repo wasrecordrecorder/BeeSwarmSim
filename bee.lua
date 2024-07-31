@@ -1707,7 +1707,7 @@ local function moveToCrosshairs()
     for _, crosshair in ipairs(crosshairs) do
         if crosshair.Name == "Crosshair" and not visitedCrosshairs[crosshair] then
             local distance = (crosshair.Position - playerPosition).Magnitude
-            if distance < nearestDistance and distance <= radius then
+            if distance < nearestDistance then
                 nearestDistance = distance
                 nearestCrosshair = crosshair
             end
@@ -1718,16 +1718,16 @@ local function moveToCrosshairs()
         local targetPosition = nearestCrosshair.Position
         local distanceToTarget = (playerPosition - targetPosition).Magnitude
 
-        while distanceToTarget > 2 do
+        while distanceToTarget > 2 do -- Пороговое значение для близости к центру объекта
             humanoid:MoveTo(targetPosition)
-            wait(0.1)
+            wait(0.1) -- Небольшая задержка для обновления позиции
             playerPosition = character.HumanoidRootPart.Position
             distanceToTarget = (playerPosition - targetPosition).Magnitude
         end
 
-        visitedCrosshairs[nearestCrosshair] = true
+        visitedCrosshairs[nearestCrosshair] = true -- Помечаем объект как посещенный
     else
-        print("No Crosshair found within radius")
+        print("No Crosshair found")
     end
 end
 
@@ -1773,7 +1773,7 @@ local function walkRandom()
                             end
                             local nearbyBalloonBodies = getNearbyBalloonBodies()
                             while #nearbyBalloonBodies > 0 do
-                                wait(0.5)
+                                wait(0.5) -- Ожидание, пока BalloonBody не исчезнет
                                 nearbyBalloonBodies = getNearbyBalloonBodies()
                             end
                             wait(4)
@@ -1792,6 +1792,7 @@ local function walkRandom()
         local nearbyMonsters = getNearbyMonsters()
         local nearbyCollectibles = getNearbyCollectibles()
 
+        -- Проверка наличия "Crosshair" в радиусе
         local crosshairs = game.Workspace.Particles:GetChildren()
         local hasCrosshairs = false
         for _, crosshair in ipairs(crosshairs) do
@@ -1803,7 +1804,7 @@ local function walkRandom()
 
         if hasCrosshairs then
             moveToCrosshairs()
-            wait(0.1)
+            wait(0.1) -- Уменьшена задержка до 0.1 секунды
         elseif #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
             if math.random() < 0.5 then
                 local closestCollectible = nearbyCollectibles[1]
