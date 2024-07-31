@@ -2653,17 +2653,19 @@ end
 local function showRadius(radius)
     if radiusPart then
         radiusPart:Destroy()
+        radiusPart = nil
+    else
+        radiusPart = createRadiusPart(radius)
+        radiusPart.Parent = workspace
+
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        game:GetService("RunService").Heartbeat:Connect(function()
+            updateRadiusPartPosition(radiusPart, humanoidRootPart.Position)
+        end)
     end
-    radiusPart = createRadiusPart(radius)
-    radiusPart.Parent = workspace
-
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    game:GetService("RunService").Heartbeat:Connect(function()
-        updateRadiusPartPosition(radiusPart, humanoidRootPart.Position)
-    end)
 end
 
 -- Обработка нажатия кнопки Show Radius
