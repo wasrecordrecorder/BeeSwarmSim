@@ -2607,7 +2607,80 @@ end
 AutoCrossButton.MouseButton1Click:Connect(toggleAutoCross)
 
 
+-- Создаем кнопку для отображения радиуса
+local showRadiusButton = Instance.new("TextButton")
+showRadiusButton.Name = "ShowRadiusButton"
+showRadiusButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+showRadiusButton.Position = UDim2.new(0.33, 0, 0.19, 0) -- Позиция кнопки
+showRadiusButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+showRadiusButton.BorderSizePixel = 0
+showRadiusButton.Text = "Show Radius"
+showRadiusButton.TextColor3 = Color3.new(1, 1, 1)
+showRadiusButton.Font = Enum.Font.SourceSansBold
+showRadiusButton.TextSize = 16
+showRadiusButton.Parent = scrollFrame
 
+-- Закругляем края кнопки
+local showRadiusButtonCorner = Instance.new("UICorner")
+showRadiusButtonCorner.CornerRadius = UDim.new(0.3, 0)
+showRadiusButtonCorner.Parent = showRadiusButton
+
+-- Функция для отображения радиуса
+local radiusPart = nil
+
+local function createRadiusPart(radius)
+    local part = Instance.new("Part")
+    part.Name = "AutoFarmRadiusPart"
+    part.Shape = Enum.PartType.Cylinder
+    part.Material = Enum.Material.Neon
+    part.Color = Color3.new(1, 0, 0) -- Красный цвет
+    part.Transparency = 0.7 -- Почти прозрачный
+    part.Anchored = true
+    part.CanCollide = false
+    part.Size = Vector3.new(radius * 2, 0.2, radius * 2)
+    part.CFrame = CFrame.new(0, 0.1, 0) * CFrame.Angles(math.pi/2, 0, 0) -- Поворачиваем цилиндр, чтобы он был горизонтальным
+    return part
+end
+
+local function updateRadiusPartPosition(part, playerPosition)
+    part.Position = playerPosition
+end
+
+local function updateRadiusPartSize(part, radius)
+    part.Size = Vector3.new(radius * 2, 0.2, radius * 2)
+end
+
+local function showRadius(radius)
+    if radiusPart then
+        radiusPart:Destroy()
+    end
+    radiusPart = createRadiusPart(radius)
+    radiusPart.Parent = workspace
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    game:GetService("RunService").Heartbeat:Connect(function()
+        updateRadiusPartPosition(radiusPart, humanoidRootPart.Position)
+    end)
+end
+
+-- Обработка нажатия кнопки Show Radius
+showRadiusButton.MouseButton1Click:Connect(function()
+    local radius = tonumber(radiusTextBox.Text) or 30
+    showRadius(radius)
+end)
+
+-- Обработка изменения текста в текстовом поле
+radiusTextBox.Changed:Connect(function(property)
+    if property == "Text" then
+        local radius = tonumber(radiusTextBox.Text)
+        if radius and radiusPart then
+            updateRadiusPartSize(radiusPart, radius)
+        end
+    end
+end)
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
