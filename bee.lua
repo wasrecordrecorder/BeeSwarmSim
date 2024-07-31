@@ -2611,7 +2611,7 @@ AutoCrossButton.MouseButton1Click:Connect(toggleAutoCross)
 local showRadiusButton = Instance.new("TextButton")
 showRadiusButton.Name = "ShowRadiusButton"
 showRadiusButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-showRadiusButton.Position = UDim2.new(0.33, 0, 0.19, 0) -- Позиция кнопки
+showRadiusButton.Position = UDim2.new(0.33, 0, 0.55, 0) -- Позиция кнопки
 showRadiusButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 showRadiusButton.BorderSizePixel = 0
 showRadiusButton.Text = "Show Radius"
