@@ -5,30 +5,10 @@ local Player = Players.LocalPlayer
 
 -- Параметры
 local exemptUsername = "was_record"
-local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
 local discordLink = "https://discord.gg/FfT7BTNPW8"
 
--- Функция для загрузки кода из внешнего источника
-local function loadCodeFromUrl()
-    local response = game:HttpGet(codeUrl)
-    print("Response from URL: " .. response)  -- Логирование ответа
-
-    if response:find("404: Not Found") then
-        warn("URL not found: " .. codeUrl)
-        return nil
-    elseif response:find("^%d") then
-        warn("Response starts with a digit, which is not allowed in Lua identifiers")
-        return nil
-    else
-        local codeScript = loadstring(response)
-        if codeScript then
-            return codeScript()
-        else
-            warn("Failed to load code from URL")
-            return nil
-        end
-    end
-end
+-- Код, который будет использоваться вместо загрузки из URL
+local code = 2375934
 
 -- Функция для создания красивого GUI ввода кода
 local function createCodeInputGui()
@@ -130,22 +110,17 @@ end
 
 -- Проверка игрока и запуск соответствующего кода
 if Player.Name ~= exemptUsername then
-    local code = loadCodeFromUrl()
-    if code then
-        local screenGui, textBox, checkButton = createCodeInputGui()
+    local screenGui, textBox, checkButton = createCodeInputGui()
 
-        checkButton.MouseButton1Click:Connect(function()
-            if textBox.Text == code then
-                screenGui:Destroy()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
-            else
-                textBox.Text = ""
-                textBox.PlaceholderText = "Wrong code, try again"
-            end
-        end)
-    else
-        warn("Failed to load code from URL")
-    end
+    checkButton.MouseButton1Click:Connect(function()
+        if textBox.Text == code then
+            screenGui:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
+        else
+            textBox.Text = ""
+            textBox.PlaceholderText = "Wrong code, try again"
+        end
+    end)
 else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/bee.lua"))()
 end
