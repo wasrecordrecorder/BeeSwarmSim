@@ -6,7 +6,7 @@ local Player = Players.LocalPlayer
 -- Параметры
 local exemptUsername = "was_record"
 local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
-local discordLink = "https://discord.gg/FfT7BTNPW8"
+local discordLink = "https://discord.gg/sNa5YvcsgT"
 
 -- Функция для загрузки кода из внешнего источника
 local function loadCodeFromUrl()
