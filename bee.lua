@@ -6,6 +6,7 @@ local Player = Players.LocalPlayer
 -- Параметры
 local exemptUsername = "was_record"
 local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
+local discordLink = "https://discord.gg/RKkVQh7ASY"
 
 -- Функция для загрузки кода из внешнего источника
 local function loadCodeFromUrl()
@@ -26,8 +27,8 @@ local function createCodeInputGui()
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 300, 0, 150)
-    frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    frame.Size = UDim2.new(0, 300, 0, 200)  -- Увеличен размер для новой кнопки
+    frame.Position = UDim2.new(0.5, -150, 0.5, -100)
     frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     frame.BorderSizePixel = 0
     frame.Parent = screenGui
@@ -38,7 +39,7 @@ local function createCodeInputGui()
     UICornerFrame.Parent = frame
 
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 0.3, 0)
+    textLabel.Size = UDim2.new(1, 0, 0.2, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Text = "Enter the code:"
     textLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -46,8 +47,8 @@ local function createCodeInputGui()
     textLabel.Parent = frame
 
     local textBox = Instance.new("TextBox")
-    textBox.Size = UDim2.new(0.8, 0, 0.3, 0)
-    textBox.Position = UDim2.new(0.1, 0, 0.35, 0)
+    textBox.Size = UDim2.new(0.8, 0, 0.2, 0)
+    textBox.Position = UDim2.new(0.1, 0, 0.25, 0)
     textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     textBox.TextColor3 = Color3.fromRGB(200, 200, 200)
     textBox.BorderSizePixel = 0
@@ -60,8 +61,8 @@ local function createCodeInputGui()
     UICornerTextBox.Parent = textBox
 
     local checkButton = Instance.new("TextButton")
-    checkButton.Size = UDim2.new(0.6, 0, 0.3, 0)
-    checkButton.Position = UDim2.new(0.2, 0, 0.7, 0)
+    checkButton.Size = UDim2.new(0.6, 0, 0.2, 0)
+    checkButton.Position = UDim2.new(0.2, 0, 0.5, 0)
     checkButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     checkButton.Text = "Check"
     checkButton.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -73,21 +74,45 @@ local function createCodeInputGui()
     UICornerButton.CornerRadius = UDim.new(0, 5)
     UICornerButton.Parent = checkButton
 
-    -- Анимация для кнопки при наведении
-    checkButton.MouseEnter:Connect(function()
-        TweenService:Create(checkButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
-    end)
-    checkButton.MouseLeave:Connect(function()
-        TweenService:Create(checkButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+    -- Новая кнопка "Get Key"
+    local getKeyButton = Instance.new("TextButton")
+    getKeyButton.Size = UDim2.new(0.6, 0, 0.2, 0)
+    getKeyButton.Position = UDim2.new(0.2, 0, 0.75, 0)
+    getKeyButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    getKeyButton.Text = "Get Key"
+    getKeyButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+    getKeyButton.TextScaled = true
+    getKeyButton.BorderSizePixel = 0
+    getKeyButton.Parent = frame
+
+    local UICornerGetKeyButton = Instance.new("UICorner")
+    UICornerGetKeyButton.CornerRadius = UDim.new(0, 5)
+    UICornerGetKeyButton.Parent = getKeyButton
+
+    -- Функция для отображения ссылки
+    getKeyButton.MouseButton1Click:Connect(function()
+        setclipboard(discordLink)
+        print("Discord link copied to clipboard: " .. discordLink)
     end)
 
-    -- Анимация для кнопки при нажатии
-    checkButton.MouseButton1Down:Connect(function()
-        TweenService:Create(checkButton, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
-    end)
-    checkButton.MouseButton1Up:Connect(function()
-        TweenService:Create(checkButton, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
-    end)
+    -- Анимация для кнопок при наведении и нажатии
+    local function animateButton(button)
+        button.MouseEnter:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
+        end)
+        button.MouseLeave:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+        end)
+        button.MouseButton1Down:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+        end)
+        button.MouseButton1Up:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+        end)
+    end
+
+    animateButton(checkButton)
+    animateButton(getKeyButton)
 
     return screenGui, textBox, checkButton
 end
