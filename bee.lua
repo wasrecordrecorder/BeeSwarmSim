@@ -4,7 +4,6 @@ local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 
 -- Параметры
-local exemptUsername = "was_record"
 local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
 local discordLink = "https://discord.gg/FfT7BTNPW8"
 
@@ -123,24 +122,20 @@ local function createCodeInputGui()
     return screenGui, textBox, checkButton
 end
 
--- Проверка игрока и запуск соответствующего кода
-if Player.Name ~= exemptUsername then
-    local code = loadCodeFromUrl()
-    if code then
-        local screenGui, textBox, checkButton = createCodeInputGui()
+-- Запуск соответствующего кода для всех игроков
+local code = loadCodeFromUrl()
+if code then
+    local screenGui, textBox, checkButton = createCodeInputGui()
 
-        checkButton.MouseButton1Click:Connect(function()
-            if textBox.Text == code then
-                screenGui:Destroy()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
-            else
-                textBox.Text = ""
-                textBox.PlaceholderText = "Wrong code, try again"
-            end
-        end)
-    else
-        warn("Failed to load code from URL")
-    end
+    checkButton.MouseButton1Click:Connect(function()
+        if textBox.Text == code then
+            screenGui:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
+        else
+            textBox.Text = ""
+            textBox.PlaceholderText = "Wrong code, try again"
+        end
+    end)
 else
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
+    warn("Failed to load code from URL")
 end
