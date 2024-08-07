@@ -1,3 +1,3 @@
 -- lib.lua
-local code = "5623"
+local code = "666777888999"
 return code
