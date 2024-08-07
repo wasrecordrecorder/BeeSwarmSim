@@ -1734,7 +1734,6 @@ local function walkRandom()
                             wait(0.1)
                             unfreezeCharacter()
                             wait(0.1)
-							teleportBeesToPlayer()
 							wait(0.35)
                             game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
                             while player.CoreStats.Pollen.Value > 0 do
@@ -1750,7 +1749,6 @@ local function walkRandom()
                             wait(0.1)
                             walkingRandom = true
 							wait(0.2)
-							teleportBeesToPlayer()
                             break
                         end
                     end
