@@ -1,10 +1,3 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-if LocalPlayer.Name == "fggfgfggfffg" then
-    return
-end
-
 if game.Workspace:FindFirstChild("Gates") then
     game.Workspace.Gates:Destroy()
     print("Объект Gates успешно удален из Workspace.")
