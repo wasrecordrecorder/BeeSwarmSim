@@ -5,7 +5,18 @@ local Player = Players.LocalPlayer
 
 -- Параметры
 local exemptUsername = "was_record"
-local fixedCode = "88033326057295521020315"
+local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
+
+-- Функция для загрузки кода из внешнего источника
+local function loadCodeFromUrl()
+    local codeScript = loadstring(game:HttpGet(codeUrl))
+    if codeScript then
+        return codeScript()
+    else
+        warn("Failed to load code from URL")
+        return nil
+    end
+end
 
 -- Функция для создания красивого GUI ввода кода
 local function createCodeInputGui()
@@ -83,17 +94,22 @@ end
 
 -- Проверка игрока и запуск соответствующего кода
 if Player.Name ~= exemptUsername then
-    local screenGui, textBox, checkButton = createCodeInputGui()
+    local code = loadCodeFromUrl()
+    if code then
+        local screenGui, textBox, checkButton = createCodeInputGui()
 
-    checkButton.MouseButton1Click:Connect(function()
-        if textBox.Text == fixedCode then
-            screenGui:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
-        else
-            textBox.Text = ""
-            textBox.PlaceholderText = "Wrong code, try again"
-        end
-    end)
+        checkButton.MouseButton1Click:Connect(function()
+            if textBox.Text == code then
+                screenGui:Destroy()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
+            else
+                textBox.Text = ""
+                textBox.PlaceholderText = "Wrong code, try again"
+            end
+        end)
+    else
+        warn("Failed to load code from URL")
+    end
 else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/bee.lua"))()
 end
