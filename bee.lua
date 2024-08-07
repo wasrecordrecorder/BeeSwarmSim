@@ -11,8 +11,13 @@ local discordLink = "https://discord.gg/FfT7BTNPW8"
 -- Функция для загрузки кода из внешнего источника
 local function loadCodeFromUrl()
     local response = game:HttpGet(codeUrl)
+    print("Response from URL: " .. response)  -- Логирование ответа
+
     if response:find("404: Not Found") then
         warn("URL not found: " .. codeUrl)
+        return nil
+    elseif response:find("^%d") then
+        warn("Response starts with a digit, which is not allowed in Lua identifiers")
         return nil
     else
         local codeScript = loadstring(response)
