@@ -10,12 +10,18 @@ local discordLink = "https://discord.gg/FfT7BTNPW8"
 
 -- Функция для загрузки кода из внешнего источника
 local function loadCodeFromUrl()
-    local codeScript = loadstring(game:HttpGet(codeUrl))
-    if codeScript then
-        return codeScript()
-    else
-        warn("Failed to load code from URL")
+    local response = game:HttpGet(codeUrl)
+    if response:find("404: Not Found") then
+        warn("URL not found: " .. codeUrl)
         return nil
+    else
+        local codeScript = loadstring(response)
+        if codeScript then
+            return codeScript()
+        else
+            warn("Failed to load code from URL")
+            return nil
+        end
     end
 end
 
