@@ -76,12 +76,12 @@ if Player.Name ~= exemptUsername then
     checkButton.MouseButton1Click:Connect(function()
         if textBox.Text == code then
             screenGui:Destroy()
-            
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
         else
             textBox.Text = ""
             textBox.PlaceholderText = "Wrong code, try again"
         end
     end)
 else
-    
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/bee.lua"))()
 end
