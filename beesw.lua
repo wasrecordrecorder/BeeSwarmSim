@@ -2416,25 +2416,6 @@ antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопк�
 antiViciousButton.Position = UDim2.new(0.65, 0, 0.31, 0) -- Позиция кнопки
 antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 antiViciousButton.BorderSizePixel = 0
-antiViciousButton.Text = "Anti-Vicious: off"
-antiViciousButton.TextColor3 = Color3.new(1, 1, 1)
-antiViciousButton.Font = Enum.Font.SourceSansBold
-antiViciousButton.TextSize = 16
-antiViciousButton.Parent = scrollFrame
-
--- Закругляем края кнопки
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0.3, 0)
-buttonCorner.Parent = antiViciousButton
-
-antiViciousButton.MouseButton1Click:Connect()
-
-local antiViciousButton = Instance.new("TextButton")
-antiViciousButton.Name = "AntiViciousButton"
-antiViciousButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-antiViciousButton.Position = UDim2.new(0.65, 0, 0.31, 0) -- Позиция кнопки
-antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
-antiViciousButton.BorderSizePixel = 0
 antiViciousButton.Text = "Auto-Vicious: off"
 antiViciousButton.TextColor3 = Color3.new(1, 1, 1)
 antiViciousButton.Font = Enum.Font.SourceSansBold
@@ -2497,15 +2478,17 @@ local function toggleAutoVicious()
     if isActive then
         antiViciousButton.Text = "Auto-Vicious: on"
         antiViciousButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
-		freezeCharacter()
-        teleportTimer = game:GetService("RunService").Heartbeat:Connect(function()
-            AutoVicious()
-            wait(4)
+        freezeCharacter()
+        teleportTimer = task.spawn(function()
+            while isActive do
+                AutoVicious()
+                task.wait(4)
+            end
         end)
     else
         antiViciousButton.Text = "Auto-Vicious: off"
         antiViciousButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
-		unfreezeCharacter()
+        unfreezeCharacter()
         if teleportTimer then
             teleportTimer:Disconnect()
             teleportTimer = nil
