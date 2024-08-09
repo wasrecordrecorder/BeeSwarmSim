@@ -5,8 +5,10 @@ local Player = Players.LocalPlayer
 
 -- Параметры
 local exemptUsername = "was_record"
+local specialUsername = "fggfgfggfffg"
 local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
-local discordLink = "https://discord.gg/sNa5YvcsgT"
+local discordLink = "https://discord.gg/PWQ7gV6333"
+local SpecialPassword = 5687758
 
 -- Функция для загрузки кода из внешнего источника
 local function loadCodeFromUrl()
@@ -130,7 +132,8 @@ if Player.Name ~= exemptUsername then
         local screenGui, textBox, checkButton = createCodeInputGui()
 
         checkButton.MouseButton1Click:Connect(function()
-            if textBox.Text == code then
+            local passwordToCheck = (Player.Name == specialUsername) and SpecialPassword or code
+            if textBox.Text == tostring(passwordToCheck) then
                 screenGui:Destroy()
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/beesw.lua"))()
             else
