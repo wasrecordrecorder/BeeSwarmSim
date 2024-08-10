@@ -2674,7 +2674,7 @@ end)
 local autoRedBoostButton = Instance.new("TextButton")
 autoRedBoostButton.Name = "AutoRedBoostButton"
 autoRedBoostButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-autoRedBoostButton.Position = UDim2.new(0.01, 0, 0.37, 0) -- Позиция кнопки (под другими кнопками)
+autoRedBoostButton.Position = UDim2.new(0.17, 0, 0.31, 0) -- Позиция кнопки (под другими кнопками)
 autoRedBoostButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 autoRedBoostButton.BorderSizePixel = 0
 autoRedBoostButton.Text = "AutoRedBoost: off"
