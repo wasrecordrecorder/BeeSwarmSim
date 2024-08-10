@@ -2791,6 +2791,72 @@ autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
 -- Вызов функции toggleAutoDispenser для включения кнопки при загрузке скрипта
 toggleAutoDispenser()
 
+-- Создаем кнопку FarmPuff
+local farmPuffButton = Instance.new("TextButton")
+farmPuffButton.Name = "FarmPuffButton"
+farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+farmPuffButton.Position = UDim2.new(0.33, 0, 0.37, 0) -- Позиция кнопки (под другими кнопками)
+farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+farmPuffButton.BorderSizePixel = 0
+farmPuffButton.Text = "FarmPuff: off"
+farmPuffButton.TextColor3 = Color3.new(1, 1, 1)
+farmPuffButton.Font = Enum.Font.SourceSansBold
+farmPuffButton.TextSize = 16
+farmPuffButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = farmPuffButton
+
+-- Переменная для хранения состояния FarmPuff
+local farmPuffEnabled = false
+
+-- Функция для поиска гриба с наивысшим рейтингом
+local function findHighestRatedPuffshroom()
+    local ratings = {"Mythic", "Legendary", "Epic", "Rare"}
+    local puffshrooms = game.Workspace.Happenings.Puffshrooms
+
+    for _, rating in ipairs(ratings) do
+        local puffshroom = api.partwithnamepart(rating, puffshrooms)
+        if puffshroom then
+            return puffshroom:FindFirstChild("Puffball Stem").CFrame
+        end
+    end
+
+    -- Если грибы с рейтингами не найдены, ищем любой гриб
+    local biggestModel = api.getbiggestmodel(puffshrooms)
+    return biggestModel:FindFirstChild("Puffball Stem").CFrame
+end
+
+-- Функция для активации FarmPuff
+local function activateFarmPuff()
+    if kocmoc.toggles.farmpuffshrooms and game.Workspace.Happenings.Puffshrooms:FindFirstChildOfClass("Model") then
+        local fieldpos = findHighestRatedPuffshroom()
+        local fieldposition = fieldpos.Position
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(fieldposition)
+    end
+end
+
+-- Функция для переключения состояния FarmPuff
+local function toggleFarmPuff()
+    farmPuffEnabled = not farmPuffEnabled
+    if farmPuffEnabled then
+        farmPuffButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        farmPuffButton.Text = "FarmPuff: on"
+        activateFarmPuff()  -- Активируем FarmPuff
+    else
+        farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        farmPuffButton.Text = "FarmPuff: off"
+    end
+end
+
+-- Обработка нажатия кнопки FarmPuff
+farmPuffButton.MouseButton1Click:Connect(toggleFarmPuff)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
