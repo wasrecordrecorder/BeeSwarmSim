@@ -2713,6 +2713,68 @@ end
 
 autoRedBoostButton.MouseButton1Click:Connect(toggleAutoRedBoost)
 
+-- Создаем кнопку AutoDispenser
+local autoDispenserButton = Instance.new("TextButton")
+autoDispenserButton.Name = "AutoDispenserButton"
+autoDispenserButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+autoDispenserButton.Position = UDim2.new(0.17, 0, 0.37, 0) -- Позиция кнопки (рядом с AutoRedBoost)
+autoDispenserButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+autoDispenserButton.BorderSizePixel = 0
+autoDispenserButton.Text = "AutoDispenser: off"
+autoDispenserButton.TextColor3 = Color3.new(1, 1, 1)
+autoDispenserButton.Font = Enum.Font.SourceSansBold
+autoDispenserButton.TextSize = 16
+autoDispenserButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = autoDispenserButton
+
+-- Переменная для хранения состояния AutoDispenser
+local autoDispenserEnabled = false
+local autoDispenserLoop = nil -- Переменная для хранения цикла
+
+-- Функция для переключения состояния AutoDispenser
+local function toggleAutoDispenser()
+    autoDispenserEnabled = not autoDispenserEnabled
+    if autoDispenserEnabled then
+        autoDispenserButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        autoDispenserButton.Text = "AutoDispenser: on"
+        -- Запуск цикла
+        autoDispenserLoop = game:GetService("RunService").Heartbeat:Connect(function()
+            local dispensers = {
+                "Glue Dispenser",
+                "Wealth Clock",
+                "Coconut Dispenser",
+                "Strawberry Dispenser",
+                "Treat Dispenser",
+                "Free Ant Pass Dispenser",
+                "Blueberry Dispenser",
+                "Honey Dispenser",
+                "Free Royal Jelly Dispenser"
+            }
+            for _, dispenser in ipairs(dispensers) do
+                local A_1 = dispenser
+                local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                Event:FireServer(A_1)
+            end
+            wait(5) -- Ждем 5 секунд перед следующим выполнением
+        end)
+    else
+        autoDispenserButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        autoDispenserButton.Text = "AutoDispenser: off"
+        -- Остановка цикла, если он запущен
+        if autoDispenserLoop then
+            autoDispenserLoop:Disconnect()
+            autoDispenserLoop = nil
+        end
+    end
+end
+
+-- Обработка нажатия кнопки AutoDispenser
+autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
