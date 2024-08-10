@@ -2742,31 +2742,35 @@ local function toggleAutoDispenser()
         autoDispenserButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         autoDispenserButton.Text = "AutoDispenser: on"
         -- Запуск цикла
-        autoDispenserLoop = game:GetService("RunService").Heartbeat:Connect(function()
-            local dispensers = {
-                "Glue Dispenser",
-                "Wealth Clock",
-                "Coconut Dispenser",
-                "Strawberry Dispenser",
-                "Treat Dispenser",
-                "Free Ant Pass Dispenser",
-                "Blueberry Dispenser",
-                "Honey Dispenser",
-                "Free Royal Jelly Dispenser"
-            }
-            for _, dispenser in ipairs(dispensers) do
-                local A_1 = dispenser
-                local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
-                Event:FireServer(A_1)
+        autoDispenserLoop = coroutine.create(function()
+            while autoDispenserEnabled do
+                local dispensers = {
+                    "Glue Dispenser",
+                    "Wealth Clock",
+                    "Coconut Dispenser",
+                    "Strawberry Dispenser",
+                    "Treat Dispenser",
+                    "Free Ant Pass Dispenser",
+                    "Blueberry Dispenser",
+                    "Honey Dispenser",
+                    "Free Royal Jelly Dispenser"
+                }
+                for _, dispenser in ipairs(dispensers) do
+                    local A_1 = dispenser
+                    local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                    Event:FireServer(A_1)
+                end
+                wait(5) -- Ждем 5 секунд перед следующим выполнением
             end
-            wait(5) -- Ждем 5 секунд перед следующим выполнением
         end)
+        coroutine.resume(autoDispenserLoop)
     else
         autoDispenserButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         autoDispenserButton.Text = "AutoDispenser: off"
         -- Остановка цикла, если он запущен
         if autoDispenserLoop then
-            autoDispenserLoop:Disconnect()
+            autoDispenserEnabled = false
+            coroutine.close(autoDispenserLoop)
             autoDispenserLoop = nil
         end
     end
