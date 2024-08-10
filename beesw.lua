@@ -2718,9 +2718,9 @@ local autoDispenserButton = Instance.new("TextButton")
 autoDispenserButton.Name = "AutoDispenserButton"
 autoDispenserButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
 autoDispenserButton.Position = UDim2.new(0.17, 0, 0.37, 0) -- Позиция кнопки (рядом с AutoRedBoost)
-autoDispenserButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+autoDispenserButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет (изначально включено)
 autoDispenserButton.BorderSizePixel = 0
-autoDispenserButton.Text = "AutoDispenser: off"
+autoDispenserButton.Text = "AutoDispenser: on"
 autoDispenserButton.TextColor3 = Color3.new(1, 1, 1)
 autoDispenserButton.Font = Enum.Font.SourceSansBold
 autoDispenserButton.TextSize = 16
@@ -2732,7 +2732,7 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = autoDispenserButton
 
 -- Переменная для хранения состояния AutoDispenser
-local autoDispenserEnabled = false
+local autoDispenserEnabled = true -- Изменено на true для включения изначально
 local autoDispenserLoop = nil -- Переменная для хранения цикла
 
 -- Функция для переключения состояния AutoDispenser
@@ -2774,6 +2774,9 @@ end
 
 -- Обработка нажатия кнопки AutoDispenser
 autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
+
+-- Вызов функции toggleAutoDispenser для включения кнопки при загрузке скрипта
+toggleAutoDispenser()
 
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
