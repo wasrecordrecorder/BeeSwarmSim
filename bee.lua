@@ -8,7 +8,7 @@ local exemptUsername = "was_record"
 local specialUsername = "fggfgfggfffg"
 local codeUrl = "https://raw.githubusercontent.com/wasrecordrecorder/BeeSwarmSim/main/lib.lua"
 local discordLink = "https://discord.gg/PWQ7gV6333"
-local SpecialPassword = 555666444999
+local SpecialPassword = 85672957
 
 -- Функция для загрузки кода из внешнего источника
 local function loadCodeFromUrl()
