@@ -2670,6 +2670,49 @@ radiusTextBox.Changed:Connect(function(property)
     end
 end)
 
+-- Создаем кнопку AutoRedBoost
+local autoRedBoostButton = Instance.new("TextButton")
+autoRedBoostButton.Name = "AutoRedBoostButton"
+autoRedBoostButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+autoRedBoostButton.Position = UDim2.new(0.01, 0, 0.37, 0) -- Позиция кнопки (под другими кнопками)
+autoRedBoostButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+autoRedBoostButton.BorderSizePixel = 0
+autoRedBoostButton.Text = "AutoRedBoost: off"
+autoRedBoostButton.TextColor3 = Color3.new(1, 1, 1)
+autoRedBoostButton.Font = Enum.Font.SourceSansBold
+autoRedBoostButton.TextSize = 16
+autoRedBoostButton.Parent = scrollFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = autoRedBoostButton
+
+local autoRedBoostEnabled = false
+local autoRedBoostLoop = nil 
+
+local function toggleAutoRedBoost()
+    autoRedBoostEnabled = not autoRedBoostEnabled
+    if autoRedBoostEnabled then
+        autoRedBoostButton.BackgroundColor3 = Color3.new(0, 1, 0)
+        autoRedBoostButton.Text = "AutoRedBoost: on"
+        autoRedBoostLoop = game:GetService("RunService").Heartbeat:Connect(function()
+            local a = "Red Field Booster"
+            local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+            Event:FireServer(a)
+            wait(10)
+        end)
+    else
+        autoRedBoostButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+        autoRedBoostButton.Text = "AutoRedBoost: off"
+        if autoRedBoostLoop then
+            autoRedBoostLoop:Disconnect()
+            autoRedBoostLoop = nil
+        end
+    end
+end
+
+autoRedBoostButton.MouseButton1Click:Connect(toggleAutoRedBoost)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
