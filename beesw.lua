@@ -1696,20 +1696,21 @@ end
 local function walkRandom()
     if walkingRandom then return end
     walkingRandom = true
-
     local player = game.Players.LocalPlayer
     if not player then return end
     local character = player.Character or player.CharacterAdded:Wait()
     if not character then return end
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid then return end
-
     local radius = tonumber(radiusTextBox.Text) or 30
     initialPosition = character.HumanoidRootPart.Position
-
+	local B = {
+	["Name"] = "Sprinkler Builder"
+	}
+	local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+	Event:FireServer(B)
     while walkingRandom do
         checkHealthAndTeleport()
-
         local pollen = player.CoreStats.Pollen.Value
         local capacity = player.CoreStats.Capacity.Value
         if pollen >= capacity then
@@ -2031,9 +2032,11 @@ local function teleportAndPressOne()
 	wait(0.1)
     humanoidRootPart.CFrame = CFrame.new(initialPosition)
     wait(0.4)
-    local virtualInputManager = game:GetService("VirtualInputManager")
-    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+    local B = {
+	["Name"] = "Sprinkler Builder"
+	}
+	local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+	Event:FireServer(B)
 	wait(0.3)
 	walkRandom()
 end
@@ -2064,9 +2067,11 @@ local function teleportAndPressOne1()
 	wait(0.1)
     humanoidRootPart.CFrame = CFrame.new(initialPosition)
     wait(0.4)
-    local virtualInputManager = game:GetService("VirtualInputManager")
-    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+    local B = {
+	["Name"] = "Sprinkler Builder"
+	}
+	local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+	Event:FireServer(B)
 	wait(0.3)
 	walkRandom()
 end
@@ -2097,9 +2102,11 @@ local function teleportAndPressOne2()
 	wait(0.1)
     humanoidRootPart.CFrame = CFrame.new(initialPosition)
     wait(0.4)
-    local virtualInputManager = game:GetService("VirtualInputManager")
-    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+    local B = {
+	["Name"] = "Sprinkler Builder"
+	}
+	local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+	Event:FireServer(B)
 	wait(0.3)
 	walkRandom()
 end
@@ -2130,9 +2137,11 @@ local function teleportAndPressOne3()
 	wait(0.1)
     humanoidRootPart.CFrame = CFrame.new(initialPosition)
     wait(0.4)
-    local virtualInputManager = game:GetService("VirtualInputManager")
-    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+    local B = {
+	["Name"] = "Sprinkler Builder"
+	}
+	local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+	Event:FireServer(B)
 	wait(0.3)
 	walkRandom()
 end
