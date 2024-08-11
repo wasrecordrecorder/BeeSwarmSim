@@ -2863,6 +2863,13 @@ end
 -- Подключение функции к событию удаления грибов
 game.Workspace.Happenings.Puffshrooms.ChildRemoved:Connect(onPuffshroomRemoved)
 
+-- Таймер для периодического поиска грибов и телепортации
+local farmPuffTimer = game:GetService("RunService").Heartbeat:Connect(function(step)
+    if farmPuffEnabled then
+        activateFarmPuff()
+    end
+end)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
