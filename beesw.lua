@@ -2839,7 +2839,7 @@ local function checkPuffshroomDisplacement()
                     initialPositions[puffshroom] = nil  -- Удаляем гриб из таблицы
                 end
             end
-        }
+	end
     end
 end
 
