@@ -1240,44 +1240,6 @@ end
 autoQuestButton.MouseButton1Click:Connect(toggleAutoQuest)
 ------------------------------------------------------
 
--- Создаем кнопку для вывода ивентов
-local eventsButton = Instance.new("TextButton")
-eventsButton.Name = "EventsButton"
-eventsButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-eventsButton.Position = UDim2.new(0.65, 0, 0.07, 0) -- Позиция рядом с кнопкой "Auto Quest"
-eventsButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
-eventsButton.BorderSizePixel = 0
-eventsButton.Text = "Print Events"
-eventsButton.TextColor3 = Color3.new(1, 1, 1)
-eventsButton.Font = Enum.Font.SourceSansBold
-eventsButton.TextSize = 16
-eventsButton.Parent = scrollFrame
-
--- Закругляем края кнопки
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0.3, 0)
-buttonCorner.Parent = eventsButton
-
--- Функция для вывода ивентов в консоль
-local function printEvents()
-    local replicatedStorage = game:GetService("ReplicatedStorage")
-    local events = replicatedStorage:GetDescendants()
-    for _, event in ipairs(events) do
-        if event:IsA("RemoteEvent") then
-            local path = event.Name
-            local parent = event.Parent
-            while parent and parent ~= replicatedStorage do
-                path = parent.Name .. "/" .. path
-                parent = parent.Parent
-            end
-            print("Event found:", event.Name, "Location:", path)
-        end
-    end
-end
-
--- Обработка нажатия кнопки
-eventsButton.MouseButton1Click:Connect(printEvents)
-
 -- Создаем кнопку для управления AutoDig
 local autoDigButton = Instance.new("TextButton")
 autoDigButton.Name = "AutoDigButton"
@@ -2868,7 +2830,7 @@ end
 local farmPuffButton = Instance.new("TextButton")
 farmPuffButton.Name = "FarmPuffButton"
 farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-farmPuffButton.Position = UDim2.new(0.33, 0, 0.37, 0) -- Позиция кнопки (под другими кнопками)
+farmPuffButton.Position = UDim2.new(0.65, 0, 0.07, 0) -- Позиция кнопки (под другими кнопками)
 farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 farmPuffButton.BorderSizePixel = 0
 farmPuffButton.Text = "FarmPuff: off"
