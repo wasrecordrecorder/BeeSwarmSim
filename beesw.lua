@@ -825,12 +825,6 @@ local function AutoQuest()
         game.ReplicatedStorage.Events.BadgeEvent:FireServer("Collect", "Rose")
         game.ReplicatedStorage.Events.BadgeEvent:FireServer("Collect", "Pine Tree")
         game.ReplicatedStorage.Events.BadgeEvent:FireServer("Collect", "Stump")
-        game.ReplicatedStorage.Events.ToyEvent:FireServer("Glue Dispenser")
-        game.ReplicatedStorage.Events.ToyEvent:FireServer("Free Royal Jelly Dispenser")
-        game.ReplicatedStorage.Events.ToyEvent:FireServer("Blueberry Dispenser")
-        game.ReplicatedStorage.Events.ToyEvent:FireServer("Strawberry Dispenser")
-        game.ReplicatedStorage.Events.ToyEvent:FireServer("Treat Dispenser")
-        game.ReplicatedStorage.Events.ToyEvent:FireServer("Wealth Clock")
         game.ReplicatedStorage.Events.CompleteQuestFromPool:FireServer("Brown Bear")
         game.ReplicatedStorage.Events.CompleteQuestFromPool:FireServer("Polar Bear")
         game.ReplicatedStorage.Events.CompleteQuestFromPool:FireServer("Honey Bee")
@@ -1518,34 +1512,6 @@ local function teleportToObjectt(object, angle)
     humanoidRootPart.CFrame = CFrame.new(position, position + newLookVector)
 end
 
-local function pressE()
-    local virtualInputManager = game:GetService("VirtualInputManager")
-    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.1)
-    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-end
-
--- Функция для заморозки персонажа
-local function freezeCharacter()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoid.PlatformStand = true
-    humanoidRootPart.Anchored = true
-end
-
--- Функция для разморозки персонажа
-local function unfreezeCharacter()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    -- Включение анимаций и физики
-    humanoid.PlatformStand = false
-    humanoidRootPart.Anchored = false
-end
 
 local function getNearbyBalloonBodies()
     local player = game.Players.LocalPlayer
@@ -2398,27 +2364,6 @@ local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = antiViciousButton
 
-local function freezeCharacter()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoid.PlatformStand = true
-    humanoidRootPart.Anchored = true
-end
-
--- Функция для разморозки персонажа
-local function unfreezeCharacter()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    -- Включение анимаций и физики
-    humanoid.PlatformStand = false
-    humanoidRootPart.Anchored = false
-end
-
 local isActive = false
 local teleportTimer = nil
 
@@ -2754,7 +2699,6 @@ autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
 toggleAutoDispenser()
 
 -- Создаем кнопку FarmPuff
--- Создаем кнопку FarmPuff
 local farmPuffButton = Instance.new("TextButton")
 farmPuffButton.Name = "FarmPuffButton"
 farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
@@ -2829,7 +2773,7 @@ local function activateFarmPuff()
     if farmPuffEnabled then
         local fieldpos = findHighestRatedPuffshroom()
         if fieldpos then
-            local fieldposition = fieldpos.Position - Vector3.new(0, 2, 0) -- Вычитаем 2 метра по оси Y
+            local fieldposition = fieldpos.Position - Vector3.new(0, 2.5, 0) -- Вычитаем 2.5 метра по оси Y
             local player = game.Players.LocalPlayer
             local character = player.Character or player.CharacterAdded:Wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
