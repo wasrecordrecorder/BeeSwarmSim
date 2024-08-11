@@ -2791,23 +2791,33 @@ autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
 -- Вызов функции toggleAutoDispenser для включения кнопки при загрузке скрипта
 toggleAutoDispenser()
 
--- Создаем кнопку FarmPuff
-local farmPuffButton = Instance.new("TextButton")
-farmPuffButton.Name = "FarmPuffButton"
-farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-farmPuffButton.Position = UDim2.new(0.33, 0, 0.37, 0) -- Позиция кнопки (под другими кнопками)
-farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
-farmPuffButton.BorderSizePixel = 0
-farmPuffButton.Text = "FarmPuff: off"
-farmPuffButton.TextColor3 = Color3.new(1, 1, 1)
-farmPuffButton.Font = Enum.Font.SourceSansBold
-farmPuffButton.TextSize = 16
-farmPuffButton.Parent = scrollFrame
+-- Функция для поиска модели по части имени
+local function partwithnamepart(namepart, parent)
+    for _, child in ipairs(parent:GetChildren()) do
+        if child:IsA("Model") and child.Name:find(namepart) then
+            return child
+        end
+    end
+    return nil
+end
 
--- Закругляем края кнопки
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0.3, 0)
-buttonCorner.Parent = farmPuffButton
+-- Функция для поиска модели с наибольшим размером
+local function getbiggestmodel(parent)
+    local biggestModel = nil
+    local biggestSize = 0
+
+    for _, child in ipairs(parent:GetChildren()) do
+        if child:IsA("Model") then
+            local size = child:GetExtentsSize().Magnitude
+            if size > biggestSize then
+                biggestSize = size
+                biggestModel = child
+            end
+        end
+    end
+
+    return biggestModel
+end
 
 -- Переменная для хранения состояния FarmPuff
 local farmPuffEnabled = false
@@ -2818,20 +2828,20 @@ local function findHighestRatedPuffshroom()
     local puffshrooms = game.Workspace.Happenings.Puffshrooms
 
     for _, rating in ipairs(ratings) do
-        local puffshroom = api.partwithnamepart(rating, puffshrooms)
+        local puffshroom = partwithnamepart(rating, puffshrooms)
         if puffshroom then
             return puffshroom:FindFirstChild("Puffball Stem").CFrame
         end
     end
 
     -- Если грибы с рейтингами не найдены, ищем любой гриб
-    local biggestModel = api.getbiggestmodel(puffshrooms)
+    local biggestModel = getbiggestmodel(puffshrooms)
     return biggestModel:FindFirstChild("Puffball Stem").CFrame
 end
 
 -- Функция для активации FarmPuff
 local function activateFarmPuff()
-    if kocmoc.toggles.farmpuffshrooms and game.Workspace.Happenings.Puffshrooms:FindFirstChildOfClass("Model") then
+    if farmPuffEnabled and game.Workspace.Happenings.Puffshrooms:FindFirstChildOfClass("Model") then
         local fieldpos = findHighestRatedPuffshroom()
         local fieldposition = fieldpos.Position
         local player = game.Players.LocalPlayer
@@ -2853,6 +2863,24 @@ local function toggleFarmPuff()
         farmPuffButton.Text = "FarmPuff: off"
     end
 end
+
+-- Создаем кнопку FarmPuff
+local farmPuffButton = Instance.new("TextButton")
+farmPuffButton.Name = "FarmPuffButton"
+farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+farmPuffButton.Position = UDim2.new(0.33, 0, 0.37, 0) -- Позиция кнопки (под другими кнопками)
+farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+farmPuffButton.BorderSizePixel = 0
+farmPuffButton.Text = "FarmPuff: off"
+farmPuffButton.TextColor3 = Color3.new(1, 1, 1)
+farmPuffButton.Font = Enum.Font.SourceSansBold
+farmPuffButton.TextSize = 16
+farmPuffButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = farmPuffButton
 
 -- Обработка нажатия кнопки FarmPuff
 farmPuffButton.MouseButton1Click:Connect(toggleFarmPuff)
