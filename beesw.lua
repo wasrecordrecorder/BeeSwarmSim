@@ -2747,6 +2747,9 @@ end
 -- Переменная для хранения состояния FarmPuff
 local farmPuffEnabled = false
 
+-- Таблица для хранения начальных позиций грибов
+local initialPositions = {}
+
 -- Функция для поиска гриба с наивысшим рейтингом
 local function findHighestRatedPuffshroom()
     local ratings = {"Mythic", "Legendary", "Epic", "Rare"}
@@ -2801,6 +2804,9 @@ farmPuffButton.MouseButton1Click:Connect(toggleFarmPuff)
 -- Функция для отслеживания исчезновения грибов и телепортации к следующему
 local function onPuffshroomRemoved(child)
     if farmPuffEnabled and child:IsA("Model") and child.Name:find("Puffshroom") then
+        task.wait(0.2)  -- Ждем 0.2 секунды
+        print("ckjddd")  -- Выводим сообщение
+        task.wait(0.2)  -- Ждем еще 0.2 секунды
         activateFarmPuff()  -- Телепортируемся к следующему грибу
     end
 end
@@ -2808,9 +2814,40 @@ end
 -- Подключение функции к событию удаления грибов
 game.Workspace.Happenings.Puffshrooms.ChildRemoved:Connect(onPuffshroomRemoved)
 
+-- Функция для обновления начальных позиций грибов
+local function updateInitialPositions()
+    initialPositions = {}
+    for _, puffshroom in ipairs(game.Workspace.Happenings.Puffshrooms:GetChildren()) do
+        if puffshroom:IsA("Model") and puffshroom.Name:find("Puffshroom") then
+            local stem = puffshroom:FindFirstChild("Puffball Stem")
+            if stem then
+                initialPositions[puffshroom] = stem.Position
+            end
+        end
+    end
+end
+
+-- Функция для проверки смещения грибов
+local function checkPuffshroomDisplacement()
+    if farmPuffEnabled then
+        for puffshroom, initialPos in pairs(initialPositions) do
+            local stem = puffshroom:FindFirstChild("Puffball Stem")
+            if stem then
+                local currentPos = stem.Position
+                if (currentPos - initialPos).Magnitude > 5 then
+                    onPuffshroomRemoved(puffshroom)
+                    initialPositions[puffshroom] = nil  -- Удаляем гриб из таблицы
+                end
+            end
+        }
+    end
+end
+
 -- Таймер для периодического поиска грибов и телепортации
 local farmPuffTimer = game:GetService("RunService").Heartbeat:Connect(function(step)
     if farmPuffEnabled then
+        updateInitialPositions()
+        checkPuffshroomDisplacement()
         activateFarmPuff()
     end
 end)
