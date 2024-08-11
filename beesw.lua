@@ -1387,9 +1387,9 @@ saveDeathButtonCorner.CornerRadius = UDim.new(0.3, 0)
 saveDeathButtonCorner.Parent = saveDeathButton
 
 -- Переменные для хранения состояния SaveDeath и последнего местоположения
-local saveDeathEnabled = false
-local lastSavedPosition = nil
-local savingAfterTeleport = false
+saveDeathEnabled = false
+lastSavedPosition = nil
+savingAfterTeleport = false
 
 -- Функция для сохранения текущего местоположения
 local function saveCurrentPosition()
@@ -1611,8 +1611,8 @@ local function isPathClear(startPoint, endPoint, monsters)
 end
 
 local function getRandomPoint(initialPosition, radius, nearbyMonsters)
-    local bestPoint = nil
-    local bestDistance = 0
+    bestPoint = nil
+    bestDistance = 0
 
     for i = 1, 20 do -- Увеличено количество попыток найти лучшую точку
         local angle = math.random() * 2 * math.pi
