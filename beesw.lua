@@ -2753,6 +2753,24 @@ autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
 -- Вызов функции toggleAutoDispenser для включения кнопки при загрузке скрипта
 toggleAutoDispenser()
 
+-- Создаем кнопку FarmPuff
+local farmPuffButton = Instance.new("TextButton")
+farmPuffButton.Name = "FarmPuffButton"
+farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+farmPuffButton.Position = UDim2.new(0.65, 0, 0.07, 0) -- Позиция кнопки (под другими кнопками)
+farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+farmPuffButton.BorderSizePixel = 0
+farmPuffButton.Text = "FarmPuff: off"
+farmPuffButton.TextColor3 = Color3.new(1, 1, 1)
+farmPuffButton.Font = Enum.Font.SourceSansBold
+farmPuffButton.TextSize = 16
+farmPuffButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = farmPuffButton
+
 -- Функция для поиска модели по части имени
 local function partwithnamepart(namepart, parent)
     for _, child in ipairs(parent:GetChildren()) do
@@ -2825,24 +2843,6 @@ local function toggleFarmPuff()
         farmPuffButton.Text = "FarmPuff: off"
     end
 end
-
--- Создаем кнопку FarmPuff
-local farmPuffButton = Instance.new("TextButton")
-farmPuffButton.Name = "FarmPuffButton"
-farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-farmPuffButton.Position = UDim2.new(0.65, 0, 0.07, 0) -- Позиция кнопки (под другими кнопками)
-farmPuffButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
-farmPuffButton.BorderSizePixel = 0
-farmPuffButton.Text = "FarmPuff: off"
-farmPuffButton.TextColor3 = Color3.new(1, 1, 1)
-farmPuffButton.Font = Enum.Font.SourceSansBold
-farmPuffButton.TextSize = 16
-farmPuffButton.Parent = scrollFrame
-
--- Закругляем края кнопки
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0.3, 0)
-buttonCorner.Parent = farmPuffButton
 
 -- Обработка нажатия кнопки FarmPuff
 farmPuffButton.MouseButton1Click:Connect(toggleFarmPuff)
