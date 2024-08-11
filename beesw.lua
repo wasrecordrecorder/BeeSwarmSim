@@ -2772,7 +2772,6 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = farmPuffButton
 
 -- Функция для поиска модели по части имени
--- Функция для поиска модели по части имени
 local function partwithnamepart(namepart, parent)
     for _, child in ipairs(parent:GetChildren()) do
         if child:IsA("Model") and child.Name:find(namepart) then
@@ -2800,7 +2799,7 @@ local function getbiggestmodel(parent)
     return biggestModel
 end
 
--- Переменные для хранения состояния
+-- Переменная для хранения состояния FarmPuff
 local farmPuffEnabled = false
 
 -- Функция для поиска гриба с наивысшим рейтингом
@@ -2829,11 +2828,6 @@ local function activateFarmPuff()
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
         humanoidRootPart.CFrame = CFrame.new(fieldposition)
-
-        -- Устанавливаем радиус и начинаем случайное движение
-        radiusTextBox.Text = "12"
-        walkingRandom = true
-        walkRandom()
     end
 end
 
@@ -2856,25 +2850,7 @@ farmPuffButton.MouseButton1Click:Connect(toggleFarmPuff)
 -- Функция для отслеживания исчезновения грибов и телепортации к следующему
 local function onPuffshroomRemoved(child)
     if farmPuffEnabled and child:IsA("Model") and child.Name:find("Puffshroom") then
-        walkingRandom = false  -- Останавливаем случайное движение
-
-        -- Активируем moveToCollectibles каждые 0.1 секунды в течение 5 секунд
-        walkItemsEnabled = true
-        walkItemsThread = coroutine.create(function()
-            for i = 1, 50 do
-                if walkItemsEnabled then
-                    moveToCollectibles()
-                    wait(0.1)
-                else
-                    break
-                end
-            end
-            walkItemsEnabled = false
-            walkItemsThread = nil
-            wait(0.2)
-            activateFarmPuff() 
-        end)
-        coroutine.resume(walkItemsThread)
+        activateFarmPuff()  -- Телепортируемся к следующему грибу
     end
 end
 
