@@ -2754,6 +2754,7 @@ autoDispenserButton.MouseButton1Click:Connect(toggleAutoDispenser)
 toggleAutoDispenser()
 
 -- Создаем кнопку FarmPuff
+-- Создаем кнопку FarmPuff
 local farmPuffButton = Instance.new("TextButton")
 farmPuffButton.Name = "FarmPuffButton"
 farmPuffButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
@@ -2863,23 +2864,10 @@ end
 -- Подключение функции к событию удаления грибов
 game.Workspace.Happenings.Puffshrooms.ChildRemoved:Connect(onPuffshroomRemoved)
 
--- Таймер для периодического поиска грибов и телепортации каждую секунду
-local farmPuffTimer
-
-local function startFarmPuffTimer()
-    farmPuffTimer = game:GetService("RunService").Heartbeat:Connect(function()
-        while farmPuffEnabled do
-            activateFarmPuff()
-            task.wait(1)  -- Ждем 1 секунду
-        end
-    end)
-end
-
--- Запускаем таймер при включении FarmPuff
-farmPuffButton.MouseButton1Click:Connect(function()
-    toggleFarmPuff()
-    if farmPuffEnabled and not farmPuffTimer then
-        startFarmPuffTimer()
+-- Таймер для периодического поиска грибов и телепортации
+local farmPuffTimer = game:GetService("RunService").Heartbeat:Connect(function(step)
+    if farmPuffEnabled then
+        activateFarmPuff()
     end
 end)
 
