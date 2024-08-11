@@ -2874,9 +2874,11 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
 end)
 
 -- Функция для перемещения GUI
-local dragging = false
-local dragStart = nil
-local startPos = nil
+local dragState = {
+    dragging = false,
+    dragStart = nil,
+    startPos = nil
+}
 
 mainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
