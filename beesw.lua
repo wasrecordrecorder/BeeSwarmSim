@@ -2828,7 +2828,7 @@ local function activateFarmPuff()
     if farmPuffEnabled then
         local fieldpos = findHighestRatedPuffshroom()
         if fieldpos then
-            local fieldposition = fieldpos.Position
+            local fieldposition = fieldpos.Position - Vector3.new(0, 2, 0) -- Вычитаем 2 метра по оси Y
             local player = game.Players.LocalPlayer
             local character = player.Character or player.CharacterAdded:Wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
