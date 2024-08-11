@@ -2839,7 +2839,7 @@ local function checkPuffshroomDisplacement()
                     initialPositions[puffshroom] = nil  -- Удаляем гриб из таблицы
                 end
             end
-	end
+        end
     end
 end
 
@@ -2848,7 +2848,6 @@ local farmPuffTimer = game:GetService("RunService").Heartbeat:Connect(function(s
     if farmPuffEnabled then
         updateInitialPositions()
         checkPuffshroomDisplacement()
-        activateFarmPuff()
     end
 end)
 
