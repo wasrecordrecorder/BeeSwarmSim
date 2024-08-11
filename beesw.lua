@@ -2816,18 +2816,24 @@ local function findHighestRatedPuffshroom()
 
     -- Если грибы с рейтингами не найдены, ищем любой гриб
     local biggestModel = getbiggestmodel(puffshrooms)
-    return biggestModel:FindFirstChild("Puffball Stem").CFrame
+    if biggestModel then
+        return biggestModel:FindFirstChild("Puffball Stem").CFrame
+    end
+
+    return nil
 end
 
 -- Функция для активации FarmPuff
 local function activateFarmPuff()
-    if farmPuffEnabled and game.Workspace.Happenings.Puffshrooms:FindFirstChildOfClass("Model") then
+    if farmPuffEnabled then
         local fieldpos = findHighestRatedPuffshroom()
-        local fieldposition = fieldpos.Position
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-        humanoidRootPart.CFrame = CFrame.new(fieldposition)
+        if fieldpos then
+            local fieldposition = fieldpos.Position
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            humanoidRootPart.CFrame = CFrame.new(fieldposition)
+        end
     end
 end
 
