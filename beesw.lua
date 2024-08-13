@@ -1487,11 +1487,11 @@ local walkingRandom = false
 local initialPosition = nil
 local hives = game.Workspace.Honeycombs:GetChildren()
 local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
+local AntWindy = false
 
 local player = game.Players.LocalPlayer
 
 local function teleportBeesToPlayer()
-
     local playerPosition = player.Character.HumanoidRootPart.Position
     for _, bee in pairs(game.Workspace.Bees:GetChildren()) do
         if bee:IsA("BasePart") then
@@ -1508,10 +1508,8 @@ local function teleportToObjectt(object, angle)
     local position = object.Position
     local newLookVector = Vector3.new(math.cos(angleRad), 0, math.sin(angleRad))
     
-    -- Установка новой CFrame с текущей позицией и новой ориентацией
     humanoidRootPart.CFrame = CFrame.new(position, position + newLookVector)
 end
-
 
 local function getNearbyBalloonBodies()
     local player = game.Players.LocalPlayer
@@ -1562,7 +1560,7 @@ end
 local function isPathClear(startPoint, endPoint, monsters)
     local direction = (endPoint - startPoint).Unit
     local distance = (endPoint - startPoint).Magnitude
-    local step = 2 -- Шаг проверки
+    local step = 2
 
     for i = 0, distance, step do
         local checkPoint = startPoint + direction * i
@@ -1580,7 +1578,7 @@ local function getRandomPoint(initialPosition, radius, nearbyMonsters)
     bestPoint = nil
     bestDistance = 0
 
-    for i = 1, 20 do -- Увеличено количество попыток найти лучшую точку
+    for i = 1, 20 do
         local angle = math.random() * 2 * math.pi
         local distance = math.random() * radius
         local x = initialPosition.X + distance * math.cos(angle)
@@ -1615,8 +1613,8 @@ local function checkHealthAndTeleport()
             wait(1)
         end
         character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
-		wait(0.1)
-		teleportBeesToPlayer()
+        wait(0.1)
+        teleportBeesToPlayer()
         walkingRandom = true
     end
 end
@@ -1632,11 +1630,11 @@ local function walkRandom()
     if not humanoid then return end
     local radius = tonumber(radiusTextBox.Text) or 30
     initialPosition = character.HumanoidRootPart.Position
-	local B = {
-	["Name"] = "Sprinkler Builder"
-	}
-	local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
-	Event:FireServer(B)
+    local B = {
+        ["Name"] = "Sprinkler Builder"
+    }
+    local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+    Event:FireServer(B)
     while walkingRandom do
         checkHealthAndTeleport()
         local pollen = player.CoreStats.Pollen.Value
@@ -1644,6 +1642,7 @@ local function walkRandom()
         if pollen >= capacity then
             walkingRandom = false
             wait(0.2)
+            AntWindy = false
             for _, hive in ipairs(hives) do
                 local ownerValue = hive:FindFirstChild("Owner")
                 if ownerValue then
@@ -1656,21 +1655,22 @@ local function walkRandom()
                             wait(0.1)
                             unfreezeCharacter()
                             wait(0.1)
-							wait(0.35)
+                            wait(0.35)
                             game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
                             while player.CoreStats.Pollen.Value > 0 do
                                 wait(0.5) 
                             end
                             local nearbyBalloonBodies = getNearbyBalloonBodies()
                             while #nearbyBalloonBodies > 0 do
-                                wait(0.5) -- Ожидание, пока BalloonBody не исчезнет
+                                wait(0.5)
                                 nearbyBalloonBodies = getNearbyBalloonBodies()
                             end
                             wait(4)
                             character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
                             wait(0.1)
                             walkingRandom = true
-							wait(0.2)
+                            AntWindy = true
+                            wait(0.2)
                             break
                         end
                     end
@@ -1716,6 +1716,13 @@ local function walkRandom()
                 print("Не удалось найти безопасную точку")
             end
         end
+
+        if AntWindy then
+            local currentPosition = character.HumanoidRootPart.Position
+            if (currentPosition - initialPosition).Magnitude > radius then
+                character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+            end
+        end
     end
 
     walkingRandom = false
@@ -1737,10 +1744,12 @@ randomWalkButton.MouseButton1Click:Connect(function()
         randomWalkButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
         randomWalkButton.Text = "Farming..."
         walkRandom()
+        AntWindy = true
     else
         randomWalkButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
         randomWalkButton.Text = "AutoFarm"
         walkingRandom = false
+        AntWindy = false
     end
 end)
 
