@@ -2536,7 +2536,7 @@ autoRedBoostButton.MouseButton1Click:Connect(toggleAutoRedBoost)
 local autoDispenserButton = Instance.new("TextButton")
 autoDispenserButton.Name = "AutoDispenserButton"
 autoDispenserButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-autoDispenserButton.Position = UDim2.new(0.17, 0, 0.37, 0) -- Позиция кнопки (рядом с AutoRedBoost)
+autoDispenserButton.Position = UDim2.new(0.81, 0, 0.31, 0) -- Позиция кнопки (рядом с AutoRedBoost)
 autoDispenserButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет (изначально включено)
 autoDispenserButton.BorderSizePixel = 0
 autoDispenserButton.Text = "AutoDispenser: on"
@@ -2761,7 +2761,7 @@ local TweenService = game:GetService("TweenService")
 local farmSnowflButton = Instance.new("TextButton")
 farmSnowflButton.Name = "FarmSnowflButton"
 farmSnowflButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-farmSnowflButton.Position = UDim2.new(0.33, 0, 0.37, 0) 
+farmSnowflButton.Position = UDim2.new(0.65, 0, 0.31, 0) 
 farmSnowflButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 farmSnowflButton.BorderSizePixel = 0
 farmSnowflButton.Text = "FarmSnowfl: off"
