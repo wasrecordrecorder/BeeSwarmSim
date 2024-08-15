@@ -2859,6 +2859,72 @@ local farmPuffTimer = game:GetService("RunService").Heartbeat:Connect(function(s
     end
 end)
 
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+-- Создаем кнопку FarmSnowfl
+local farmSnowflButton = Instance.new("TextButton")
+farmSnowflButton.Name = "FarmSnowflButton"
+farmSnowflButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
+farmSnowflButton.Position = UDim2.new(0.33, 0, 0.37, 0) 
+farmSnowflButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
+farmSnowflButton.BorderSizePixel = 0
+farmSnowflButton.Text = "FarmSnowfl: off"
+farmSnowflButton.TextColor3 = Color3.new(1, 1, 1)
+farmSnowflButton.Font = Enum.Font.SourceSansBold
+farmSnowflButton.TextSize = 16
+farmSnowflButton.Parent = scrollFrame
+
+-- Закругляем края кнопки
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = farmSnowflButton
+
+-- Переменная для хранения состояния FarmSnowfl
+local farmSnowflEnabled = false
+
+-- Функция для получения случайной снежинки
+local function GetSnowflake()
+    local Snowflakes = game:GetService("Workspace").Particles.Snowflakes
+    if #Snowflakes:GetChildren() ~= 0 then
+        return Snowflakes:GetChildren()[math.random(1, #Snowflakes:GetChildren())]
+    else
+        return nil
+    end
+end
+
+-- Функция для сбора снежинок
+local function FarmSnowflakes()
+    while farmSnowflEnabled do
+        local selectedsnowflake = GetSnowflake()
+        if selectedsnowflake then
+            local collecttick = tick()
+            repeat
+                TweenService:Create(Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(1), {CFrame = selectedsnowflake.CFrame + Vector3.new(0, 15, 0)}):Play()
+                Players.LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+                task.wait()
+            until (tick() - collecttick > 4.5) or not farmSnowflEnabled
+        end
+        task.wait(6)
+    end
+end
+
+-- Функция для переключения состояния FarmSnowfl
+local function toggleFarmSnowfl()
+    farmSnowflEnabled = not farmSnowflEnabled
+    if farmSnowflEnabled then
+        farmSnowflButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый цвет
+        farmSnowflButton.Text = "FarmSnowfl: on"
+        FarmSnowflakes() -- Запускаем функцию сбора снежинок
+    else
+        farmSnowflButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        farmSnowflButton.Text = "FarmSnowfl: off"
+    end
+end
+
+-- Обработка нажатия кнопки FarmSnowfl
+farmSnowflButton.MouseButton1Click:Connect(toggleFarmSnowfl)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
