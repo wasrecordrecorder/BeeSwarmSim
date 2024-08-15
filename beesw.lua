@@ -563,11 +563,11 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = bringItemsButton
 
 -- Переменная для хранения состояния цикла и счетчика телепортаций
-local bringItemsEnabled = false
-local bringItemsThread = nil
-local teleportCounter = 0
-local lastTeleportedCollectible = nil
-local collectedItems = {} -- Список для хранения всех собранных предметов
+bringItemsEnabled = false
+bringItemsThread = nil
+teleportCounter = 0
+lastTeleportedCollectible = nil
+collectedItems = {} -- Список для хранения всех собранных предметов
 
 -- Функция для телепортации к ближайшему объекту из Collectibles
 local function teleportToCollectibles()
@@ -1483,11 +1483,11 @@ local randomWalkButtonCorner = Instance.new("UICorner")
 randomWalkButtonCorner.CornerRadius = UDim.new(0.3, 0)
 randomWalkButtonCorner.Parent = randomWalkButton
 
-local walkingRandom = false
-local initialPosition = nil
-local hives = game.Workspace.Honeycombs:GetChildren()
-local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
-local disableRadiusCheck = false
+walkingRandom = false
+initialPosition = nil
+hives = game.Workspace.Honeycombs:GetChildren()
+safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
+disableRadiusCheck = false
 
 local player = game.Players.LocalPlayer
 
