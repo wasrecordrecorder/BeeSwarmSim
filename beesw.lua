@@ -2496,7 +2496,7 @@ autoRedBoostButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопк
 autoRedBoostButton.Position = UDim2.new(0.17, 0, 0.31, 0) -- Позиция кнопки (под другими кнопками)
 autoRedBoostButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
 autoRedBoostButton.BorderSizePixel = 0
-autoRedBoostButton.Text = "AutoRedBoost: off"
+autoRedBoostButton.Text = "AutoFieldBoost: off"
 autoRedBoostButton.TextColor3 = Color3.new(1, 1, 1)
 autoRedBoostButton.Font = Enum.Font.SourceSansBold
 autoRedBoostButton.TextSize = 16
@@ -2513,16 +2513,22 @@ local function toggleAutoRedBoost()
     autoRedBoostEnabled = not autoRedBoostEnabled
     if autoRedBoostEnabled then
         autoRedBoostButton.BackgroundColor3 = Color3.new(0, 1, 0)
-        autoRedBoostButton.Text = "AutoRedBoost: on"
+        autoRedBoostButton.Text = "AutoFieldBoost: on"
         autoRedBoostLoop = game:GetService("RunService").Heartbeat:Connect(function()
             local a = "Red Field Booster"
+	    local b = "Field Booster"
+	    local c = "Blue Field Booster"
             local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
             Event:FireServer(a)
+	    wait(0.1)
+	    Event:FireServer(b)
+	    wait(0.1)
+            Event:FireServer(c)
             wait(10)
         end)
     else
         autoRedBoostButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
-        autoRedBoostButton.Text = "AutoRedBoost: off"
+        autoRedBoostButton.Text = "AutoFieldBoost: off"
         if autoRedBoostLoop then
             autoRedBoostLoop:Disconnect()
             autoRedBoostLoop = nil
