@@ -1,14 +1,26 @@
-if game.Workspace:FindFirstChild("Gates") then
-    game.Workspace.Gates:Destroy()
-    print("Объект Gates успешно удален из Workspace.")
-else
-    print("Объект Gates не найден в Workspace.")
-end
-
 repeat wait() until game:IsLoaded()
     game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):ClickButton2(Vector2.new())
 end)
+
+if game.Workspace:FindFirstChild("Gates") then
+    game.Workspace.Gates:Destroy()
+else
+    print("Объект Gates не найден в Workspace.")
+end
+
+local function ClaimHive()
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local eventstore = {
+        ClaimHive = ReplicatedStorage.Events.ClaimHive
+    }
+    local Workspace = game:GetService("Workspace")
+    for _, v in Workspace.Honeycombs:GetChildren() do
+        if v.Owner.Value ~= nil then continue end
+        eventstore.ClaimHive:FireServer(v.HiveID.Value)
+    end
+end
+ClaimHive()
 
 local function createESP(player)
     local character = player.Character
@@ -42,7 +54,6 @@ local function checkPlayers()
     end
 end
 
--- Запуск проверки игроков при загрузке скрипта и при добавлении нового игрока
 checkPlayers()
 game.Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function()
@@ -53,7 +64,6 @@ game.Players.PlayerRemoving:Connect(function(player)
     removeESP(player)
 end)
 
--- Периодическая проверка каждые 5 секунд в отдельном потоке
 spawn(function()
     while true do
         wait(5)
@@ -61,7 +71,6 @@ spawn(function()
     end
 end)
 
--- Обновление ESP каждые 3 секунды в отдельном потоке
 spawn(function()
     while true do
         for _, player in ipairs(game.Players:GetPlayers()) do
@@ -426,88 +435,6 @@ end
 
 -- Обработка нажатия кнопки Flight
 flightButton.MouseButton1Click:Connect(toggleFlight)
-
--- Создаем кнопку Auto Hive
-local autoHiveButton = Instance.new("TextButton")
-autoHiveButton.Name = "AutoHiveButton"
-autoHiveButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Размер кнопки
-autoHiveButton.Position = UDim2.new(0.65, 0, 0.01, 0) -- Позиция рядом с кнопкой "Flight"
-autoHiveButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет по умолчанию
-autoHiveButton.BorderSizePixel = 0
-autoHiveButton.Text = "Auto Hive: off"
-autoHiveButton.TextColor3 = Color3.new(1, 1, 1)
-autoHiveButton.Font = Enum.Font.SourceSansBold
-autoHiveButton.TextSize = 16
-autoHiveButton.Parent = scrollFrame -- Убедитесь, что кнопка добавлена в правильный контейнер
-
--- Закругляем края кнопки
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0.3, 0)
-buttonCorner.Parent = autoHiveButton
-
--- Функция для телепортации к объекту
-local function teleportToObject(object)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = object.CFrame
-end
-
--- Функция для нажатия клавиши "E"
-local function pressE()
-    local virtualInputManager = game:GetService("VirtualInputManager")
-    virtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.1)
-    virtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-end
-
--- Обработчик нажатия кнопки
-autoHiveButton.MouseButton1Click:Connect(function()
-    local player = game.Players.LocalPlayer
-    local hives = game.Workspace.Honeycombs:GetChildren()
-    local foundOwnObject = false
-
-    for _, hive in ipairs(hives) do
-        print("Checking Hive: " .. tostring(hive.Name))
-        local ownerValue = hive:FindFirstChild("Owner")
-        if ownerValue then
-            if ownerValue.Value == player then
-                print("Owner matches player")
-                local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
-                if patharrowBase then
-                    print("Found patharrow Base, teleporting...")
-                    teleportToObject(patharrowBase)
-                    foundOwnObject = true
-                    break
-                else
-                    print("patharrow Base not found")
-                end
-            else
-                print("Owner does not match player")
-            end
-        else
-            print("Owner not found in Hive: " .. tostring(hive.Name))
-        end
-    end
-
-    if not foundOwnObject then
-        for _, hive in ipairs(hives) do
-            local ownerValue = hive:FindFirstChild("Owner")
-            if ownerValue and ownerValue.Value == nil then
-                print("Found Hive with nil Owner, teleporting...")
-                local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
-                if patharrowBase then
-                    teleportToObject(patharrowBase)
-                    task.wait(0.4) -- Добавляем задержку в 2 секунды
-                    pressE()
-                    break
-                else
-                    print("patharrow Base not found")
-                end
-            end
-        end
-    end
-end)
 
 local tpSproutButton = Instance.new("TextButton")
 tpSproutButton.Name = "TpSproutButton"
@@ -1631,13 +1558,13 @@ local function walkRandom()
     if not character then return end
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid then return end
+    local pollen = player.CoreStats.Pollen.Value
+    local capacity = player.CoreStats.Capacity.Value
     local radius = tonumber(radiusTextBox.Text) or 30
     initialPosition = character.HumanoidRootPart.Position
 
     while walkingRandom do
         checkHealthAndTeleport()
-        local pollen = player.CoreStats.Pollen.Value
-        local capacity = player.CoreStats.Capacity.Value
         if pollen >= capacity then
             walkingRandom = false
             disableRadiusCheck = true  -- Отключаем проверку на выход за пределы радиуса
@@ -1648,7 +1575,12 @@ local function walkRandom()
                     if ownerValue.Value == player then
                         local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
                         if patharrowBase then
-                            print("Found patharrow Base, teleporting...")
+			    local A = {
+                                ["Name"] = "Whirligig"
+                            }
+                            local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+                            Event:FireServer(A)
+			    wait(0.1)
                             freezeCharacter()
                             teleportToObjectt(patharrowBase, 90)
                             wait(0.1)
@@ -1681,7 +1613,7 @@ local function walkRandom()
         local nearbyCollectibles = getNearbyCollectibles()
 
         if #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
-            if math.random() < 0.5 then
+            if math.random() < 0.8 then
                 local closestCollectible = nearbyCollectibles[1]
                 local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
 
@@ -2585,6 +2517,7 @@ local function toggleAutoDispenser()
                     local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
                     Event:FireServer(A_1)
                 end
+		game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer("Gingerbread House")
                 wait(5) -- Ждем 5 секунд перед следующим выполнением
             end
         end)
