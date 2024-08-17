@@ -1575,12 +1575,6 @@ local function walkRandom()
                     if ownerValue.Value == player then
                         local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
                         if patharrowBase then
-			    local A = {
-                                ["Name"] = "Whirligig"
-                            }
-                            local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
-                            Event:FireServer(A)
-			    wait(0.1)
                             freezeCharacter()
                             teleportToObjectt(patharrowBase, 90)
                             wait(0.1)
@@ -2359,6 +2353,7 @@ showRadiusButtonCorner.Parent = showRadiusButton
 
 -- Функция для отображения радиуса
 local radiusPart = nil
+local heartbeatConnection = nil
 
 local function createRadiusPart(radius)
     local part = Instance.new("Part")
@@ -2388,6 +2383,8 @@ local function showRadius(radius)
         radiusPart = nil
         showRadiusButton.Text = "Show Radius: Off"
         showRadiusButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Серый цвет
+        heartbeatConnection:Disconnect() -- Отключаем соединение с Heartbeat
+        heartbeatConnection = nil
     else
         radiusPart = createRadiusPart(radius)
         radiusPart.Parent = workspace
@@ -2396,7 +2393,7 @@ local function showRadius(radius)
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-        game:GetService("RunService").Heartbeat:Connect(function()
+        heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
             updateRadiusPartPosition(radiusPart, humanoidRootPart.Position)
         end)
 
