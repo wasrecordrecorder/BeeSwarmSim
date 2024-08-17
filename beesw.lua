@@ -1410,11 +1410,11 @@ local randomWalkButtonCorner = Instance.new("UICorner")
 randomWalkButtonCorner.CornerRadius = UDim.new(0.3, 0)
 randomWalkButtonCorner.Parent = randomWalkButton
 
-walkingRandom = false
-initialPosition = nil
-hives = game.Workspace.Honeycombs:GetChildren()
-safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
-disableRadiusCheck = false
+local walkingRandom = false
+local initialPosition = nil
+local hives = game.Workspace.Honeycombs:GetChildren()
+local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
+local disableRadiusCheck = false
 
 local player = game.Players.LocalPlayer
 
@@ -1549,6 +1549,51 @@ local function checkHealthAndTeleport()
     end
 end
 
+local visitedCrosshairs = {}
+
+local function getNearbyCrosshairs()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local nearbyCrosshairs = {}
+
+    for _, crosshair in ipairs(game.Workspace.Particles:GetChildren()) do
+        if crosshair.Name == "Crosshair" and not visitedCrosshairs[crosshair] then
+            table.insert(nearbyCrosshairs, crosshair)
+        end
+    end
+
+    return nearbyCrosshairs
+end
+
+local function moveToCrosshairs()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return end
+
+    local nearbyCrosshairs = getNearbyCrosshairs()
+
+    while #nearbyCrosshairs > 0 do
+        local closestCrosshair = nearbyCrosshairs[1]
+        local closestDistance = (closestCrosshair.Position - character.HumanoidRootPart.Position).Magnitude
+
+        for _, crosshair in ipairs(nearbyCrosshairs) do
+            local distance = (crosshair.Position - character.HumanoidRootPart.Position).Magnitude
+            if distance < closestDistance then
+                closestDistance = distance
+                closestCrosshair = crosshair
+            end
+        end
+
+        visitedCrosshairs[closestCrosshair] = true
+        humanoid:MoveTo(closestCrosshair.Position)
+        humanoid.MoveToFinished:Wait()
+
+        nearbyCrosshairs = getNearbyCrosshairs()
+    end
+end
+
 local function walkRandom()
     if walkingRandom then return end
     walkingRandom = true
@@ -1558,13 +1603,13 @@ local function walkRandom()
     if not character then return end
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid then return end
-    local pollen = player.CoreStats.Pollen.Value
-    local capacity = player.CoreStats.Capacity.Value
     local radius = tonumber(radiusTextBox.Text) or 30
     initialPosition = character.HumanoidRootPart.Position
 
     while walkingRandom do
         checkHealthAndTeleport()
+        local pollen = player.CoreStats.Pollen.Value
+        local capacity = player.CoreStats.Capacity.Value
         if pollen >= capacity then
             walkingRandom = false
             disableRadiusCheck = true  -- Отключаем проверку на выход за пределы радиуса
@@ -1575,6 +1620,7 @@ local function walkRandom()
                     if ownerValue.Value == player then
                         local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
                         if patharrowBase then
+                            print("Found patharrow Base, teleporting...")
                             freezeCharacter()
                             teleportToObjectt(patharrowBase, 90)
                             wait(0.1)
@@ -1603,11 +1649,13 @@ local function walkRandom()
             end
         end
 
+        moveToCrosshairs()  -- Перемещаемся к объектам Crosshair
+
         local nearbyMonsters = getNearbyMonsters()
         local nearbyCollectibles = getNearbyCollectibles()
 
         if #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
-            if math.random() < 0.8 then
+            if math.random() < 0.5 then
                 local closestCollectible = nearbyCollectibles[1]
                 local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
 
