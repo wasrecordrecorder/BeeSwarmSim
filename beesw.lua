@@ -2804,6 +2804,68 @@ end
 -- Обработка нажатия кнопки FarmSnowfl
 farmSnowflButton.MouseButton1Click:Connect(toggleFarmSnowfl)
 
+-- Function AutoSamovar
+function AutoSamovar()
+    game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer("Samovar")
+    local platformm = game:GetService("Workspace").Toys.Samovar.Platform
+    local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
+    for i, v in pairs(game.Workspace.Collectibles:GetChildren()) do
+        if (v.Position - platformm.Position).magnitude < 25 and v.CFrame.YVector.Y == 1 then
+            humanoidRootPart.CFrame = v.CFrame
+        end
+    end
+end
+
+-- Create the AutoSamVar button
+local autoSamVarButton = Instance.new("TextButton")
+autoSamVarButton.Name = "AutoSamVarButton"
+autoSamVarButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Size of the button
+autoSamVarButton.Position = UDim2.new(0.65, 0, 0.01, 0) -- Position of the button
+autoSamVarButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Default gray color
+autoSamVarButton.BorderSizePixel = 0
+autoSamVarButton.Text = "AutoSamVar: off"
+autoSamVarButton.TextColor3 = Color3.new(1, 1, 1)
+autoSamVarButton.Font = Enum.Font.SourceSansBold
+autoSamVarButton.TextSize = 16
+autoSamVarButton.Parent = scrollFrame
+
+-- Round the corners of the button
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
+buttonCorner.Parent = autoSamVarButton
+
+-- Variable to store the state of AutoSamVar
+local autoSamVarEnabled = false
+local autoSamVarThread = nil
+
+-- Function to toggle AutoSamVar state
+local function toggleAutoSamVar()
+    autoSamVarEnabled = not autoSamVarEnabled
+    if autoSamVarEnabled then
+        autoSamVarButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Green color for on state
+        autoSamVarButton.Text = "AutoSamVar: on"
+        -- Start the timer
+        autoSamVarThread = coroutine.create(function()
+            while autoSamVarEnabled do
+                AutoSamovar()
+                wait(5)
+            end
+        end)
+        coroutine.resume(autoSamVarThread)
+    else
+        autoSamVarButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Gray color for off state
+        autoSamVarButton.Text = "AutoSamVar: off"
+        -- Stop the timer
+        if autoSamVarThread then
+            autoSamVarEnabled = false
+            autoSamVarThread = nil
+        end
+    end
+end
+
+-- Connect the button click event to the toggle function
+autoSamVarButton.MouseButton1Click:Connect(toggleAutoSamVar)
+
 -- Функция для анимации открытия/закрытия
 local function toggleGui()
     if mainFrame.Position.Y.Scale == -0.5 then
