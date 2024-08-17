@@ -650,7 +650,7 @@ inputCorner.CornerRadius = UDim.new(0.3, 0) -- Задаем радиус зак�
 inputCorner.Parent = speedInput
 
 -- Переменные для хранения стандартной и текущей скорости
-local defaultSpeed = 18 -- Стандартная скорость игрока
+local defaultSpeed = 22 -- Стандартная скорость игрока
 local currentSpeed = defaultSpeed
 
 -- Переменная для хранения состояния SpeedHack
@@ -1607,6 +1607,7 @@ local function walkRandom()
     initialPosition = character.HumanoidRootPart.Position
 
     while walkingRandom do
+	speedInput.Text = "90"
         checkHealthAndTeleport()
         local pollen = player.CoreStats.Pollen.Value
         local capacity = player.CoreStats.Capacity.Value
@@ -1655,7 +1656,7 @@ local function walkRandom()
         local nearbyCollectibles = getNearbyCollectibles()
 
         if #nearbyMonsters == 0 and #nearbyCollectibles > 0 then
-            if math.random() < 0.5 then
+            if math.random() < 0.8 then
                 local closestCollectible = nearbyCollectibles[1]
                 local closestDistance = (closestCollectible.Position - initialPosition).Magnitude
 
