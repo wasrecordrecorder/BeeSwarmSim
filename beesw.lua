@@ -1415,6 +1415,7 @@ local initialPosition = nil
 local hives = game.Workspace.Honeycombs:GetChildren()
 local safeCFrame = CFrame.new(-113.7687, 1.41108704, 271.749634)
 local disableRadiusCheck = false
+local visCollect = {}
 
 local player = game.Players.LocalPlayer
 
@@ -1479,7 +1480,7 @@ local function getNearbyCollectibles()
     local nearbyCollectibles = {}
 
     for _, collectible in ipairs(game.Workspace.Collectibles:GetChildren()) do
-        if (collectible.Position - humanoidRootPart.Position).Magnitude <= 30 then
+        if (collectible.Position - humanoidRootPart.Position).Magnitude <= 30 and not visCollect[collectible] then
             table.insert(nearbyCollectibles, collectible)
         end
     end
@@ -1621,7 +1622,6 @@ local function walkRandom()
                     if ownerValue.Value == player then
                         local patharrowBase = hive:FindFirstChild("patharrow") and hive.patharrow:FindFirstChild("Base")
                         if patharrowBase then
-                            print("Found patharrow Base, teleporting...")
                             freezeCharacter()
                             teleportToObjectt(patharrowBase, 90)
                             wait(0.1)
@@ -1650,7 +1650,7 @@ local function walkRandom()
             end
         end
 
-        moveToCrosshairs()  -- Перемещаемся к объектам Crosshair
+        moveToCrosshairs()
 
         local nearbyMonsters = getNearbyMonsters()
         local nearbyCollectibles = getNearbyCollectibles()
@@ -1670,6 +1670,7 @@ local function walkRandom()
 
                 humanoid:MoveTo(closestCollectible.Position)
                 humanoid.MoveToFinished:Wait()
+                visCollect[closestCollectible] = true 
             else
                 local targetPoint = getRandomPoint(initialPosition, radius, nearbyMonsters)
 
@@ -1691,7 +1692,6 @@ local function walkRandom()
             end
         end
 
-        -- Проверка, что игрок не вышел за пределы радиуса
         if not disableRadiusCheck then
             local currentPosition = character.HumanoidRootPart.Position
             if (currentPosition - initialPosition).Magnitude > radius then
@@ -2805,19 +2805,6 @@ end
 -- Обработка нажатия кнопки FarmSnowfl
 farmSnowflButton.MouseButton1Click:Connect(toggleFarmSnowfl)
 
--- Function AutoSamovar
-function AutoSamovar()
-    game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer("Samovar")
-    local platformm = game:GetService("Workspace").Toys.Samovar.Platform
-    local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
-    for i, v in pairs(game.Workspace.Collectibles:GetChildren()) do
-        if (v.Position - platformm.Position).magnitude < 25 and v.CFrame.YVector.Y == 1 then
-            humanoidRootPart.CFrame = v.CFrame
-        end
-    end
-end
-
--- Create the AutoSamVar button
 local autoSamVarButton = Instance.new("TextButton")
 autoSamVarButton.Name = "AutoSamVarButton"
 autoSamVarButton.Size = UDim2.new(0.15, 0, 0.05, 0) -- Size of the button
@@ -2830,26 +2817,33 @@ autoSamVarButton.Font = Enum.Font.SourceSansBold
 autoSamVarButton.TextSize = 16
 autoSamVarButton.Parent = scrollFrame
 
--- Round the corners of the button
 local buttonCorner = Instance.new("UICorner")
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 buttonCorner.Parent = autoSamVarButton
 
--- Variable to store the state of AutoSamVar
 local autoSamVarEnabled = false
 local autoSamVarThread = nil
 
--- Function to toggle AutoSamVar state
+function AutoSamovar()
+    game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer("Samovar")
+    local platformm = game:GetService("Workspace").Toys.Samovar.Platform
+    local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
+    for i, v in pairs(game.Workspace.Collectibles:GetChildren()) do
+        if (v.Position - platformm.Position).magnitude < 25 and v.CFrame.YVector.Y == 1 then
+            humanoidRootPart.CFrame = v.CFrame
+        end
+    end
+end
+
 local function toggleAutoSamVar()
     autoSamVarEnabled = not autoSamVarEnabled
     if autoSamVarEnabled then
         autoSamVarButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Green color for on state
         autoSamVarButton.Text = "AutoSamVar: on"
-        -- Start the timer
         autoSamVarThread = coroutine.create(function()
             while autoSamVarEnabled do
                 AutoSamovar()
-                wait(5)
+                wait(0.8)
             end
         end)
         coroutine.resume(autoSamVarThread)
@@ -2864,7 +2858,6 @@ local function toggleAutoSamVar()
     end
 end
 
--- Connect the button click event to the toggle function
 autoSamVarButton.MouseButton1Click:Connect(toggleAutoSamVar)
 
 -- Функция для анимации открытия/закрытия
