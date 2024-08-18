@@ -1576,6 +1576,7 @@ local function moveToCrosshairs()
     local nearbyCrosshairs = getNearbyCrosshairs()
 
     while #nearbyCrosshairs > 0 do
+	disableRadiusCheck = true
         local closestCrosshair = nearbyCrosshairs[1]
         local closestDistance = (closestCrosshair.Position - character.HumanoidRootPart.Position).Magnitude
 
@@ -1590,7 +1591,7 @@ local function moveToCrosshairs()
         visitedCrosshairs[closestCrosshair] = true
         humanoid:MoveTo(closestCrosshair.Position)
         humanoid.MoveToFinished:Wait()
-
+	disableRadiusCheck = false
         nearbyCrosshairs = getNearbyCrosshairs()
     end
 end
